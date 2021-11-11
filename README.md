@@ -1,1 +1,1 @@
-WinAPI_Fullscreen_Sample
+Cpp_WinAPI_Fullscreen_Sample
