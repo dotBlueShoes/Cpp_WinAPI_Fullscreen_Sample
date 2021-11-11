@@ -24,17 +24,17 @@
     <ClInclude Include="resource\Resource.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="WinAPI_Fullscreen_Sample.hpp">
+    <ClInclude Include="Cpp_WinAPI_Fullscreen_Sample.hpp">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WinAPI_Fullscreen_Sample.cpp">
+    <ClCompile Include="Cpp_WinAPI_Fullscreen_Sample.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="resource\WinAPI_Fullscreen_Sample.rc">
+    <ResourceCompile Include="resource\Cpp_WinAPI_Fullscreen_Sample.rc">
       <Filter>Pliki zasobów</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -42,7 +42,7 @@
     <Image Include="icon\small.ico">
       <Filter>Pliki zasobów</Filter>
     </Image>
-    <Image Include="icon\WinAPI_Fullscreen_Sample.ico">
+    <Image Include="icon\Cpp_WinAPI_Fullscreen_Sample.ico">
       <Filter>Pliki zasobów</Filter>
     </Image>
   </ItemGroup>

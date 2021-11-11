@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{975fafd1-c813-4e6e-9e15-01ea037e441c}</ProjectGuid>
-    <RootNamespace>WinAPIFullscreenSample</RootNamespace>
+    <ProjectGuid>{d60ac802-52ad-45b7-acad-3a2ad6e4ae69}</ProjectGuid>
+    <RootNamespace>CppWinAPIFullscreenSample</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,20 +139,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Cpp_WinAPI_Fullscreen_Sample.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="resource\Resource.h" />
     <ClInclude Include="settings\targetver.h" />
-    <ClInclude Include="WinAPI_Fullscreen_Sample.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WinAPI_Fullscreen_Sample.cpp" />
+    <ClCompile Include="Cpp_WinAPI_Fullscreen_Sample.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="resource\WinAPI_Fullscreen_Sample.rc" />
+    <ResourceCompile Include="resource\Cpp_WinAPI_Fullscreen_Sample.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="icon\Cpp_WinAPI_Fullscreen_Sample.ico" />
     <Image Include="icon\small.ico" />
-    <Image Include="icon\WinAPI_Fullscreen_Sample.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

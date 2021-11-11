@@ -1,8 +1,8 @@
-﻿// WinAPI_Fullscreen_Sample.cpp : Definiuje punkt wejścia dla aplikacji.
+﻿// Cpp_WinAPI_Fullscreen_Sample.cpp : Definiuje punkt wejścia dla aplikacji.
 //
 
 #include "framework.hpp"
-#include "winapi_fullscreen_sample.hpp"
+#include "Cpp_WinAPI_Fullscreen_Sample.hpp"
 
 #define MAX_LOADSTRING 100
 
@@ -29,7 +29,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // Inicjuj ciągi globalne
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_WINAPIFULLSCREENSAMPLE, szWindowClass, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_CPPWINAPIFULLSCREENSAMPLE, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
     // Wykonaj inicjowanie aplikacji:
@@ -38,7 +38,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINAPIFULLSCREENSAMPLE));
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CPPWINAPIFULLSCREENSAMPLE));
 
     MSG msg;
 
@@ -73,10 +73,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINAPIFULLSCREENSAMPLE));
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CPPWINAPIFULLSCREENSAMPLE));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_WINAPIFULLSCREENSAMPLE);
+    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_CPPWINAPIFULLSCREENSAMPLE);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 

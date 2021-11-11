@@ -1,17 +1,17 @@
 ﻿//{{NO_DEPENDENCIES}}
 // Plik dołączany wygenerowany przez program Microsoft Visual C++.
-// Używane przez: WinAPI_Fullscreen_Sample.rc
+// Używane przez: Cpp_WinAPI_Fullscreen_Sample.rc
 
 #define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
-#define IDD_WINAPIFULLSCREENSAMPLE_DIALOG	102
+#define IDD_CPPWINAPIFULLSCREENSAMPLE_DIALOG	102
 #define IDD_ABOUTBOX			103
 #define IDM_ABOUT				104
 #define IDM_EXIT				105
-#define IDI_WINAPIFULLSCREENSAMPLE			107
+#define IDI_CPPWINAPIFULLSCREENSAMPLE			107
 #define IDI_SMALL				108
-#define IDC_WINAPIFULLSCREENSAMPLE			109
+#define IDC_CPPWINAPIFULLSCREENSAMPLE			109
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
