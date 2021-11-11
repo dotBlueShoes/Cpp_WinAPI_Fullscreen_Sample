@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cpp_WinAPI_Fullscreen_Sample", "Cpp_WinAPI_Fullscreen_Sample\Cpp_WinAPI_Fullscreen_Sample.vcxproj", "{D60AC802-52AD-45B7-ACAD-3A2AD6E4AE69}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MST", "..\..\..\Api_Libs\MST\MST\MST.vcxproj", "{E5D7306C-208F-42F3-A07A-FCACAFE8D131}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{D60AC802-52AD-45B7-ACAD-3A2AD6E4AE69}.Release|x64.Build.0 = Release|x64
 		{D60AC802-52AD-45B7-ACAD-3A2AD6E4AE69}.Release|x86.ActiveCfg = Release|Win32
 		{D60AC802-52AD-45B7-ACAD-3A2AD6E4AE69}.Release|x86.Build.0 = Release|Win32
+		{E5D7306C-208F-42F3-A07A-FCACAFE8D131}.Debug|x64.ActiveCfg = Debug|x64
+		{E5D7306C-208F-42F3-A07A-FCACAFE8D131}.Debug|x64.Build.0 = Debug|x64
+		{E5D7306C-208F-42F3-A07A-FCACAFE8D131}.Debug|x86.ActiveCfg = Debug|Win32
+		{E5D7306C-208F-42F3-A07A-FCACAFE8D131}.Debug|x86.Build.0 = Debug|Win32
+		{E5D7306C-208F-42F3-A07A-FCACAFE8D131}.Release|x64.ActiveCfg = Release|x64
+		{E5D7306C-208F-42F3-A07A-FCACAFE8D131}.Release|x64.Build.0 = Release|x64
+		{E5D7306C-208F-42F3-A07A-FCACAFE8D131}.Release|x86.ActiveCfg = Release|Win32
+		{E5D7306C-208F-42F3-A07A-FCACAFE8D131}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

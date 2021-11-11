@@ -4,10 +4,13 @@
 
 #pragma once
 
+#include "mst.hpp"						// MST standard library
+
 #include "settings/targetver.h"			// WinAPI version control - GUI look.
 
 #define WIN32_LEAN_AND_MEAN             // Wyklucz rzadko używane rzeczy z nagłówków systemu Windows
 #include <windows.h>					// Pliki nagłówkowe systemu Windows
+
 
 // Pliki nagłówkowe środowiska uruchomieniowego języka C
 
