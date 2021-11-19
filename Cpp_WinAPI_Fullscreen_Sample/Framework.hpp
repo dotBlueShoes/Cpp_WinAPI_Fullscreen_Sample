@@ -1,10 +1,9 @@
-﻿// header.h: plik dołączany dla standardowych systemowych plików dołączanych,
-// lub pliki dołączane specyficzne dla projektu
-//
+﻿#pragma once
 
-#pragma once
-
-#include "mst.hpp"						// MST standard library
+#include "resource/resource.h"			// Resource File.
+#include "mst.hpp"						// MST standard library.
+#include "mst/winapi.hpp"
+using namespace mst;
 
 #include "settings/targetver.h"			// WinAPI version control - GUI look.
 
@@ -18,3 +17,17 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+
+// Resource based data.
+
+enum windowInput : int32 {
+	initializeDialogWindow = WM_INITDIALOG,
+	command = WM_COMMAND,
+	destroy = WM_DESTROY,
+	paint = WM_PAINT
+};
+
+enum menuInput : int32 {
+	about = IDM_ABOUT,
+	quit = IDM_EXIT
+};

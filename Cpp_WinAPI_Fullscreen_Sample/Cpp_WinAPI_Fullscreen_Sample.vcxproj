@@ -147,13 +147,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Cpp_WinAPI_Fullscreen_Sample.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="resource\Resource.h" />
     <ClInclude Include="settings\targetver.h" />
+    <ClInclude Include="window\window.hpp" />
+    <ClInclude Include="window\windowAbout.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Cpp_WinAPI_Fullscreen_Sample.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource\Cpp_WinAPI_Fullscreen_Sample.rc" />
