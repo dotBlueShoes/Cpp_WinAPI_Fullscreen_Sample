@@ -1,15 +1,15 @@
 ﻿#pragma once
 
-#include "resource/resource.h"			// Resource File.
 #include "mst.hpp"						// MST standard library.
 #include "mst/winapi.hpp"
 using namespace mst;
 
+#include "resource/resource.hpp"		// Resource File.
 #include "settings/targetver.h"			// WinAPI version control - GUI look.
 
 #define WIN32_LEAN_AND_MEAN             // Wyklucz rzadko używane rzeczy z nagłówków systemu Windows
 #include <windows.h>					// Pliki nagłówkowe systemu Windows
-
+//#include <uxtheme.h>
 
 // Pliki nagłówkowe środowiska uruchomieniowego języka C
 
@@ -27,7 +27,7 @@ enum windowInput : int32 {
 	paint = WM_PAINT
 };
 
-enum menuInput : int32 {
+enum codeInput : int32 {
 	about = IDM_ABOUT,
 	quit = IDM_EXIT
 };

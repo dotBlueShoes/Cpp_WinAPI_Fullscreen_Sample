@@ -12,13 +12,13 @@ namespace window {
 		windowProperties.cbSize = { sizeof winapi::windowClass };
 
 		const winapi::iconHandle
-			icon { LoadIcon(windowInstance, MAKEINTRESOURCE(IDI_CPPWINAPIFULLSCREENSAMPLE)) },
-			iconSmall { LoadIcon(windowInstance, MAKEINTRESOURCE(IDI_SMALL)) };
+			icon		{ LoadIcon(windowInstance, MAKEINTRESOURCE(IDI_CPPWINAPIFULLSCREENSAMPLE)) },
+			iconSmall	{ LoadIcon(windowInstance, MAKEINTRESOURCE(IDI_SMALL)) };
 
-		const winapi::wchar*		menuName { MAKEINTRESOURCEW(IDC_CPPWINAPIFULLSCREENSAMPLE) };
+		const winapi::wchar*		menuName		{ MAKEINTRESOURCEW(IDC_CPPWINAPIFULLSCREENSAMPLE) };
 		const winapi::brushHandle	backgroundColor { (winapi::brushHandle)(COLOR_WINDOW + 1) };
-		const winapi::cursorHandle	cursor { LoadCursor(nullptr, IDC_ARROW) };
-		const uint32				windowStyle { CS_HREDRAW | CS_VREDRAW };
+		const winapi::cursorHandle	cursor			{ LoadCursor(nullptr, IDC_ARROW) };
+		const uint32				windowStyle		{ CS_HREDRAW | CS_VREDRAW };
 
 		windowProperties.style			= windowStyle;
 		windowProperties.lpfnWndProc	= procedure;

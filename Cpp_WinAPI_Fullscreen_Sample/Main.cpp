@@ -7,86 +7,85 @@
 using namespace winapi;
 
 const size maxStringLength = 100;
+handleInstnace mainProcessInstance;			// Wystąpienie tej aplikacji.
 
-winapi::handleInstnace mainProcessInstance;		// Wystąpienie tej aplikacji.
-array<winapi::wchar, 100> 
-	windowClassName,							// Nazwa klasy głównego okna.
-	windowTitle;								// Tekst paska tytułu.
+namespace event {
+	inline auto MessagePaint(const windowHandle& window) {
+		windowDrawContext drawContext;
+		displayContextHandle displayContext { BeginPaint(window, &drawContext) };
 
-int64 CALLBACK	WindowMainProcedure(windowHandle, uint32, messageW, messageL);
+		//SetWindowTheme(window, L"Explorer", NULL);
 
-int32 APIENTRY wWinMain(
-	_In_ handleInstnace processInstance,
-	_In_opt_ handleInstnace hPrevInstance,
-	_In_ wchar* lpCmdLine,
-	_In_ int32 nCmdShow
-){
-	// Possesing string data from resource file.
-	LoadStringW(processInstance, IDC_CPPWINAPIFULLSCREENSAMPLE, windowClassName.Pointer(), (int32)windowClassName.Length());
-	LoadStringW(processInstance, IDS_APP_TITLE, windowTitle.Pointer(), (int32)windowTitle.Length());
+		EndPaint(window, &drawContext);
+	}
 
-	window::Register(processInstance, windowClassName.Pointer(), WindowMainProcedure);
-	if (window::Initialize( processInstance, windowClassName.Pointer(), windowTitle.Pointer(), nCmdShow)) 
-		return 0;
+	inline auto MessageAbout(const windowHandle& window) {
+		DialogBox(mainProcessInstance, MAKEINTRESOURCE(IDD_ABOUTBOX), window, (DLGPROC)About);
+	}
 
-	mainProcessInstance = processInstance;
-
-	{	// Program's LOOP
-		keysMap keys = accelerator::Load(processInstance, MAKEINTRESOURCE(IDC_CPPWINAPIFULLSCREENSAMPLE));
-		retrivedMessage message;
-
-		while (message::Get(message)) {
-			if (!accelerator::Translate(message.hwnd, keys, message)) {
-				message::Translate(message);
-				message::Dispatch(message);
-			}
-		}
-
-		return (int32)message.wParam;
+	inline auto Default(windowHandle window, uint32 message, messageW wArgument, messageL lArgument) {
+		return DefaultWindowProcedure(window, message, wArgument, lArgument);
 	}
 }
 
-int64 CALLBACK WindowMainProcedure(
+int64 stdcall WindowMainProcedure(
 	windowHandle window,
-	uint32 message, 
-	messageW w,
-	messageL l
-){
+	uint32 message,
+	messageW wArgument,
+	messageL lArgument
+) {
 	switch (message) {
 
-		case windowInput::command: {
-
-			switch (GetMenuInput(w)) { 
-
-				case menuInput::about:
-					DialogBox(mainProcessInstance, MAKEINTRESOURCE(IDD_ABOUTBOX), window, (DLGPROC)About);
+		case windowInput::command:
+			switch (GetMenuInput(wArgument)) {
+				case codeInput::about:
+					event::MessageAbout(window);
 					break;
-
-				case menuInput::quit:
+				case codeInput::quit:
 					DestroyWindow(window);
 					break;
-
 				default:
-					return DefaultWindowProcedure(window, message, w, l);
-
-			} break;
-
-		}
-		
-		case windowInput::paint: {
-			windowDrawContext drawContext;
-			displayContextHandle displayContext { BeginPaint(window, &drawContext) };
-			EndPaint(window, &drawContext);
+					return event::Default(window, message, wArgument, lArgument);
+			}
 			break;
-		}
-		
+
+		case windowInput::paint:
+			event::MessagePaint(window);
+			break;
 		case windowInput::destroy:
 			PostQuitMessage(0);
 			break;
 
 		default:
-			return DefaultWindowProcedure(window, message, w, l);
+			return event::Default(window, message, wArgument, lArgument);
+
 	}
 
 	return 0;
+}
+
+int32 stdcall wWinMain(
+	sal_in handleInstnace processInstance,	// The process we're given to run our program.
+	sal_io handleInstnace hPrevInstance,	// Now has no meaing it's 0 always.
+	sal_in wchar* cmdlineArgs,				// Contains command line arguments as a unicode string.
+	sal_in int32 windowState				// flag that says whether the window should appear minimized, maximied, shown normally.
+){
+	resourceFile::Load(processInstance);	// Getting the resourceFiles loaded.
+
+	window::Register(processInstance, resource.windowClassName.Pointer(), WindowMainProcedure);	// Parent window creation.
+	if (window::Initialize(processInstance, resource.windowClassName.Pointer(), resource.windowTitle.Pointer(), windowState)) 
+		return 0;
+	mainProcessInstance = processInstance;
+
+	{	// Program's main loop.
+		retrivedMessage message;
+		while (message::Get(message)) {
+			if (!accelerator::Translate(message.hwnd, resource.keys, message)) {
+				message::Translate(message);
+				message::Dispatch(message);
+			}
+		} 
+		
+		return (int32)message.wParam;
+	}
 }
