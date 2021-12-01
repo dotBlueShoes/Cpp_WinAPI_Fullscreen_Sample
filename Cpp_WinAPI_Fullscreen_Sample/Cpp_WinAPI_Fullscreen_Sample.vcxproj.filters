@@ -30,7 +30,7 @@
     <ClInclude Include="window\windowAbout.hpp">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="resource\Resource.hpp">
+    <ClInclude Include="resource\ResourceHandler.hpp">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>

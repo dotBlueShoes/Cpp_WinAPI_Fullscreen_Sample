@@ -20,7 +20,7 @@ namespace event {
 	}
 
 	inline auto MessageAbout(const windowHandle& window) {
-		DialogBox(mainProcessInstance, MAKEINTRESOURCE(IDD_ABOUTBOX), window, (DLGPROC)About);
+		DialogBox(mainProcessInstance, MAKEINTRESOURCE(IDD_ABOUTBOX), window, (DLGPROC)window::About);
 	}
 
 	inline auto Default(windowHandle window, uint32 message, messageW wArgument, messageL lArgument) {
@@ -36,12 +36,12 @@ int64 stdcall WindowMainProcedure(
 ) {
 	switch (message) {
 
-		case windowInput::command:
+		case windowInput::Command:
 			switch (GetMenuInput(wArgument)) {
-				case codeInput::about:
+				case mainMenuInput::About:
 					event::MessageAbout(window);
 					break;
-				case codeInput::quit:
+				case mainMenuInput::Quit:
 					DestroyWindow(window);
 					break;
 				default:
@@ -49,10 +49,10 @@ int64 stdcall WindowMainProcedure(
 			}
 			break;
 
-		case windowInput::paint:
+		case windowInput::Paint:
 			event::MessagePaint(window);
 			break;
-		case windowInput::destroy:
+		case windowInput::Destroy:
 			PostQuitMessage(0);
 			break;
 

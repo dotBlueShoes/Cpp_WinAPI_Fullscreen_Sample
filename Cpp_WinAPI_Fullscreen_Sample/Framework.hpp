@@ -4,7 +4,7 @@
 #include "mst/winapi.hpp"
 using namespace mst;
 
-#include "resource/resource.hpp"		// Resource File.
+#include "resource/resourcehandler.hpp"		// Resource File.
 #include "settings/targetver.h"			// WinAPI version control - GUI look.
 
 #define WIN32_LEAN_AND_MEAN             // Wyklucz rzadko używane rzeczy z nagłówków systemu Windows
@@ -17,17 +17,3 @@ using namespace mst;
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-
-// Resource based data.
-
-enum windowInput : int32 {
-	initializeDialogWindow = WM_INITDIALOG,
-	command = WM_COMMAND,
-	destroy = WM_DESTROY,
-	paint = WM_PAINT
-};
-
-enum codeInput : int32 {
-	about = IDM_ABOUT,
-	quit = IDM_EXIT
-};

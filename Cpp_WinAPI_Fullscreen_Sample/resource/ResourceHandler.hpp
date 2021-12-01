@@ -1,6 +1,9 @@
 #pragma once
 #include "resource.h"
-#include "../framework.hpp"
+
+#include "mst.hpp"
+#include "mst/winapi.hpp"
+using namespace mst;
 using namespace winapi;
 
 struct {
@@ -20,3 +23,12 @@ namespace resourceFile {
 	}
 }
 
+enum buttonInput : uint16 {
+	Cancel = IDCANCEL,
+	Ok = IDOK
+};
+
+enum mainMenuInput : uint16 {
+	About = IDM_ABOUT,
+	Quit = IDM_EXIT
+};
