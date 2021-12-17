@@ -126,6 +126,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,15 +145,17 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="resource\Resource.h" />
     <ClInclude Include="resource\ResourceHandler.hpp" />
+    <ClInclude Include="settings\DarkMode.hpp" />
     <ClInclude Include="settings\targetver.h" />
-    <ClInclude Include="window\window.hpp" />
-    <ClInclude Include="window\windowAbout.hpp" />
+    <ClInclude Include="settings\UAHMenuBar.hpp" />
+    <ClInclude Include="windows\WindowAbout.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -163,6 +166,9 @@
   <ItemGroup>
     <Image Include="icon\Cpp_WinAPI_Fullscreen_Sample.ico" />
     <Image Include="icon\small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="Cpp_WinApi_Fullscreen_Sample.exe.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

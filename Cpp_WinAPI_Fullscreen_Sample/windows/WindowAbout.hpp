@@ -6,15 +6,14 @@ using namespace winapi;
 // This is cool however
 //  - got an error that conversion from mst::winapi::messageW to mst::uint32 is a loss type conversion.
 //  - i really want to template those 2.
-
 // Retrives Higher half of the type. 
-getter uint16 Hig(uint32 whole) { return (uint16)(whole >> 16); }
+//getter uint16 Hig(uint32 whole) { return (uint16)(whole >> 16); }
 // Retrives Lower half of the type. 
-getter uint16 Low(uint32 whole) { return (uint16)(whole); }
+//getter uint16 Low(uint32 whole) { return (uint16)(whole); }
 
-namespace window {
+namespace windows {
 
-	proceeded CALLBACK About(
+	proceeded stdcall About(
 		windowHandle window, uint32 message,
 		messageW wArgument, messageL lArgument
 	) {
