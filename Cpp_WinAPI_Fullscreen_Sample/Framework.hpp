@@ -5,8 +5,7 @@
 #include "mst/winapi.hpp"
 using namespace mst;
 
-#include "resource/resourcehandler.hpp"		// Resource File.
-#include "settings/targetver.h"				// WinAPI version control - GUI look.
+#include "resources/resourcehandler.hpp"		// Resource File.
 
 #define WIN32_LEAN_AND_MEAN					// Wyklucz rzadko używane rzeczy z nagłówków systemu Windows
 #include <windows.h>						// Pliki nagłówkowe systemu Windows

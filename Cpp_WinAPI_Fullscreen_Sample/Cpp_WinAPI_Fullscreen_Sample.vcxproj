@@ -150,22 +150,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Framework.hpp" />
-    <ClInclude Include="resource\Resource.h" />
-    <ClInclude Include="resource\ResourceHandler.hpp" />
-    <ClInclude Include="settings\DarkMode.hpp" />
-    <ClInclude Include="settings\targetver.h" />
-    <ClInclude Include="settings\UAHMenuBar.hpp" />
+    <ClInclude Include="resources\Resource.h" />
+    <ClInclude Include="resources\ResourceHandler.hpp" />
+    <ClInclude Include="resources\settings\targetver.h" />
     <ClInclude Include="windows\WindowAbout.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="resource\Cpp_WinAPI_Fullscreen_Sample.rc" />
+    <ResourceCompile Include="resources\Cpp_WinAPI_Fullscreen_Sample.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon\Cpp_WinAPI_Fullscreen_Sample.ico" />
-    <Image Include="icon\small.ico" />
+    <Image Include="resources\icon\Cpp_WinAPI_Fullscreen_Sample.ico" />
+    <Image Include="resources\icon\small.ico" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Cpp_WinApi_Fullscreen_Sample.exe.manifest" />

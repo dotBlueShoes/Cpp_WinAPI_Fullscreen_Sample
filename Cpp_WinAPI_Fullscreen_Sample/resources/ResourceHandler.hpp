@@ -1,5 +1,6 @@
 #pragma once
-#include "resource.h"
+#include "settings/targetver.h"		// WinAPI version control - GUI look.
+#include "resource.h"				// Resource itself
 
 #include "mst.hpp"
 #include "mst/winapi.hpp"
@@ -19,7 +20,7 @@ struct {
 		titleId = IDS_APP_TITLE;
 
 	array<wchar, 100> className, title;
-	keysMap keys { 0 };
+	keysMapHandle keys { 0 };
 
 } resource;
 
