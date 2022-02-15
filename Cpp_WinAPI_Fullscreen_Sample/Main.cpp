@@ -1,24 +1,11 @@
 ﻿// The entry of the application and it's main procedure.
 
-#include "framework.hpp"
-#include "windows/windowAbout.hpp"
+// HERE! DLL Library
+// https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-freelibrary
+// It might be possible to dynamically asociate the window procedure.
+// https://stackoverflow.com/questions/31648180/c-changing-hwnd-window-procedure-in-runtime
 
-// Enabling darkmode [runtime] ...
-// For backwards compatibility first check whether we're running windows 10 and higher or not.
-//  this however requires applications to be manifested for windows 10 to work properly.
-//#include <versionhelpers.h>
-//IsWindows10OrGreater()
-
-using namespace winapi;
-using namespace window;
-
-theme::solidBrush backgroundPrimary, backgroundSecondary, backgroundHovered, backgroundSelected;
-const theme::theme* colorPalette { &theme::lightMode };
-
-const size maxStringLength = 100;
-handleInstnace mainProcessInstance;			// Wystąpienie tej aplikacji.
-
-// what would i do now:
+// TODO
 //  1. i know how to say to a user that a specifc feature is not available due to os he is using.
 //   now i need to not ship the code that wont work under his version to do this i need macros
 //   https://docs.microsoft.com/pl-pl/windows/win32/winprog/using-the-windows-headers?redirectedfrom=MSDN
@@ -33,44 +20,35 @@ handleInstnace mainProcessInstance;			// Wystąpienie tej aplikacji.
 //   Iterestingly i belief that it's possible to override what function from dll returns and instead of BOOL return an uint32 readable value
 //   tho it requires replacing in first place and after the calling of function is it worthit and acctually doable?
 //  4. DialogBox also needs to be darkmoded..
-//  5. UAHMenuBar and maybe other things are leaking !
-//   https://codereview.stackexchange.com/questions/20181/correct-way-of-using-hbrushes
-
-
-// 2. See why the move of DeleteLibrary worked and where should it be really positioned then.
-// 3. Create a border for menu items using https://stackoverflow.com/questions/16159127/win32-how-to-draw-a-rectangle-around-a-text-string
+//  5. See why the move of DeleteLibrary worked and where should it be really positioned then.
+//  6. Create a border for menu items using https://stackoverflow.com/questions/16159127/win32-how-to-draw-a-rectangle-around-a-text-string
 
 // flag64 darkmodeFlag
 // enum class darkmodeFlag : flag64 {
 //	isSupported : 0b0000'0000'0000'0000'0000'0000'0000'0000'0000'0000'0000'0000'0000'0000'0000'0000
 // };
-
 // See what we got.
 //array<wchar, 3> buffor;
 //Uint64ToWcharsTerminated<3>(buffor, darkmode::isEnabled, '\n');
 //MessageBoxEx(window, L"woah", buffor.Pointer(), MB_OK, 0);
+// handle leaks
+// https://codereview.stackexchange.com/questions/20181/correct-way-of-using-hbrushes
 
-namespace event {
+#include "framework.hpp"
+#include "windows/windowAbout.hpp"
+using namespace winapi::window;
+
+handleInstnace mainProcess; // Wystąpienie tej aplikacji.
+uint64 messageCounter { 0 }; // Anti queue overflow. Whenever we know how many msgs we get and how we want to respond to them.
+
+namespace windowMain::event {
 	inline proceeded Create(const windowHandle& window) {
 
+		// Refresh titlebar theme color.
 		#ifdef WINDOWS_VERSION_10
 		if (darkmode::isSupported) {
 			darkmode::proxy::AllowDarkModeForWindow(window, darkmode::isEnabled);
-
-			// Refresh titlebar theme color.
-			BOOL dark { FALSE };
-
-			if (darkmode::proxy::IsDarkModeAllowedForWindow(window) &&
-				darkmode::proxy::ShouldAppsUseDarkMode() &&
-				!darkmode::IsHighContrast()) {
-				dark = TRUE;
-			}
-
-			if (darkmode::proxy::SetWindowCompositionAttribute) {
-				darkmode::proxy::WINDOWCOMPOSITIONATTRIBDATA data { darkmode::proxy::WINDOWCOMPOSITIONATTRIB::WCA_USEDARKMODECOLORS, &dark, sizeof dark };
-				darkmode::proxy::SetWindowCompositionAttribute(window, &data);
-			}
-
+			darkmode::RefreshTitleBarTheme(window);
 		}
 		#endif
 
@@ -78,35 +56,88 @@ namespace event {
 	}
 
 	inline proceeded Destroy() {
-
-		backgroundSecondary.Destroy();
-		backgroundSelected.Destroy();
-		backgroundHovered.Destroy();
-		backgroundPrimary.Destroy();
-
-		// This is a call to the thread queue itself that we're finished.
-		PostQuitMessage(0);
+		themes::Destroy();
+		PostQuitMessage(0); // This is a call to the thread queue itself that we're finished.
 
 		return proceeded::True;
 	}
 
+	// Calls whenever the window is being moved called via other, initialized and much more.
 	inline proceeded Paint(const windowHandle& window) {
+		//MessageBoxEx(window, L"Main", L"PaintCall", MB_OK, 0);
 		windowDrawContext drawContext;
 		displayContextHandle displayContext { BeginPaint(window, &drawContext) };
+
+		rect clientArea { 0 };
+		GetClientRect(window, &clientArea);
+		FillRect(displayContext, &clientArea, themes::backgroundPrimary.Get());
+
 		EndPaint(window, &drawContext);
 
 		return proceeded::True;
 	}
 
 	inline proceeded MessageAbout(const windowHandle& window) {
-		DialogBox(mainProcessInstance, MAKEINTRESOURCE(resource.windowAboutId), window, (DLGPROC)windows::About);
+		DialogBox(mainProcess, MAKEINTRESOURCE(resource.windowAboutId), window, (DLGPROC)windows::About);
 		return proceeded::True;
 	}
 
-	
+
 	// This calls whenever we switch from dark mode to light mode and reverse.
 	inline proceeded SettingChange(const windowHandle& window, const messageW& parameterW, const messageL& parameterL) {
 
+		// For some reason the changing from lightmode to darkmode and vice versa
+		// always take 10 calls in here with only wParam chaning.
+		// This wParam holds information obaut "SystemParametersInfo"
+		// I tried to decode it however those are not bit flags.
+		// Instead they have a hex meaning and they are added to each other.
+
+		// I found the a solution to discard unnecesery for me messages.
+		// Which would be done with "PeekMessage" and flags PM_NOREMOVE, PM_REMOVE
+		// however the actual working solution is to applay a counter and hope it will lock at 10 msgs.
+
+		/*
+		#ifdef WINDOWS_VERSION_10
+		// By that we know that it's either a
+		// - result of a change in policy settings ( 0 == user policy )
+		// - result of a change in locale settings
+		// - when an application sends this message
+		// All of these use parameterL as string therefore we can check that.
+		if (parameterW == NULL) {
+			// To check for ImmersiveColorSet
+			const wchar* pointer = (wchar*)parameterL;
+			const array<wchar, 18> function { L'I', L'm', L'm', L'e', L'r', L's', L'i', L'v', L'e', L'C', L'o', L'l', L'o', L'r', L'S', L'e', L't', L'\0' };
+			bool equals = 0;
+
+			for (int i = 0; pointer[i] != L'\0'; i++)
+				equals = equals + (pointer[i] == function[i]);
+			if (!equals) return proceeded::True;
+
+			if (darkmode::isSupported && darkmode::IsColorSchemeChangedMessage(parameterL)) {
+				MessageBoxEx(window, pointer, L"Main", MB_OK, 0);
+				darkmode::isEnabled = darkmode::proxy::ShouldAppsUseDarkMode() && !darkmode::IsHighContrast();
+
+				darkmode::RefreshTitleBarTheme(window);
+				SendMessageW(window, WM_THEMECHANGED, 0, 0); // ... its called like at least 7 times..
+				return proceeded::True;
+			}
+		} 
+		#endif
+		return proceeded::True;
+		//MessageBoxEx(window, L"Main", L"SettingChange", MB_OK, 0);
+		*/
+
+		if (darkmode::isSupported && darkmode::IsColorSchemeChangedMessage(parameterL)) {
+			if (++messageCounter == 10) {
+				messageCounter = 0;
+
+				darkmode::isEnabled = darkmode::proxy::ShouldAppsUseDarkMode() && !darkmode::IsHighContrast();
+				darkmode::RefreshTitleBarTheme(window);
+				SendMessageW(window, WM_THEMECHANGED, 0, 0);
+			}
+		}
+
+		/*
 		// A message that is sent to all top-level windows when the SystemParametersInfo function 
 		//  changes a system-wide setting or when policy settings have changed.
 		//  https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-settingchange
@@ -145,6 +176,7 @@ namespace event {
 			}
 		} // else MessageBoxEx(window, L"SettingChange", L"Not NULL!", MB_OK, 0);
 		#endif
+		*/
 
 		return proceeded::True;
 	}
@@ -162,69 +194,69 @@ proceeded stdcall WindowMainProcedure(
 ) {
 	switch (message) {
 
+		// "return 0" means that WM_PAINT instead handles the background color setting up.
+		// It makes passing the background color at window class initialization useless.
+		case (input)WM_ERASEBKGND:
+			return proceeded::False;
+
 		case input::Command:
 			switch (GetMenuInput(wArgument)) {
-
-				case mainMenuInput::About:	
-					return event::MessageAbout(window);
-
-				case mainMenuInput::Quit:
-					DestroyWindow(window);
-					return proceeded::True;
-
-				default:
-					return event::Default(window, (uint32)message, wArgument, lArgument);
-
+				case mainMenuInput::About: return windowMain::event::MessageAbout(window);
+				case mainMenuInput::Quit: DestroyWindow(window); return proceeded::True;
+				default: return windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
 			} break;
 
-		case input::Create: 
-			return event::Create(window);
-
-		case input::Destroy:
-			return event::Destroy();
-
-		case input::Paint: 
-			return event::Paint(window);
-
-		case input::SettingChange: 
-			return event::SettingChange(window, wArgument, lArgument);
+		case input::Create: return windowMain::event::Create(window);
+		case input::Destroy: return windowMain::event::Destroy();
+		case input::Paint: return windowMain::event::Paint(window);
+		case input::SettingChange: return windowMain::event::SettingChange(window, wArgument, lArgument);
 
 		#ifdef WINDOWS_VERSION_10
-		case (input)uahmenubar::UAHMenuEvent::DrawItem: 
-			uahmenubar::DrawMenuItem(window, *(uahmenubar::UAHDRAWMENUITEM*)lArgument, backgroundSecondary, backgroundSelected, backgroundHovered, (*colorPalette).textPrimary); 
-			return proceeded::True;;
-
-		case (input)uahmenubar::UAHMenuEvent::Draw:
-			uahmenubar::DrawMenu(window, *(uahmenubar::UAHMENU*)lArgument, backgroundSecondary);
-			return proceeded::True;
+		namespace eu = event::uahmenubar;
+		case (input)eu::UAHMenuEvent::DrawItem: return eu::DrawMenuItem(window, *(eu::UAHDRAWMENUITEM*)lArgument, themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
+		case (input)eu::UAHMenuEvent::Draw: return eu::DrawMenu(window, *(eu::UAHMENU*)lArgument, themes::backgroundSecondary);
 		#endif
 
 		case input::NonClientAreaPaint:
 		case input::NonClientAreaFocus: {
 			displayContextHandle drawContext { GetWindowDC(window) };
-
 			// We need to get throuh some other paints first.
-			event::Default(window, (uint32)message, wArgument, lArgument);
+			windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
 
 			// UAHMENU
 			#ifdef WINDOWS_VERSION_10
-			uahmenubar::DrawBottomLine(window, drawContext, backgroundPrimary.Get());
+			event::uahmenubar::DrawBottomLine(window, drawContext, themes::backgroundPrimary.Get());
 			#endif
 			return proceeded::True;
 		}
 
-		case input::ThemeChange:
-			// UAHMENU
-			#ifdef WINDOWS_VERSION_10
-			if (uahmenubar::menuTheme) { 
-				CloseThemeData(uahmenubar::menuTheme);
-				uahmenubar::menuTheme = nullptr;
+		case input::ThemeChange: {
+			#ifdef WINDOWS_VERSION_10 // UAHMENU
+			if (event::uahmenubar::menuTheme) {
+				CloseThemeData(event::uahmenubar::menuTheme);
+				event::uahmenubar::menuTheme = nullptr;
 			} 
-			#endif
-			break;
 
-		default:
-			return event::Default(window, (uint32)message, wArgument, lArgument);
+			// HEEEREEEE IT IS ALSO CALLED ABOUT 7 times do something with it!!!!
+			// I need to change the color either by creating a new window on top or doing some SelectObject magic i guess
+			if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
+			else themes::ChangeColorPalette(theme::lightMode);
+
+			//themes::ReplaceBrushes();
+			themes::Destroy(); // This makes brushes white as the data holded there is no longer.
+			themes::InitializeBrushes();
+			InvalidateRect(window, NULL, TRUE);
+			DrawMenuBar(window);
+
+			//SendMessageW(window, WM_PAINT, 0, 0);
+			//displayContextHandle displayContext = GetDC(window);
+			//SelectObject(displayContext, themes::backgroundPrimary.Get());
+			//event::uahmenubar::UAHMENU newMenuRef {GetMenu(window), GetWindowDC(window), 0};
+			//event::uahmenubar::DrawMenu(window, newMenuRef, themes::backgroundSecondary);
+			#endif
+		} break;
+
+		default: return windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
 
 		// Keeping it just to get u know thats the option.
 		//case (proceeded)uahmenubar::UAHMenuEvent::MeasureItem:
@@ -235,34 +267,30 @@ proceeded stdcall WindowMainProcedure(
 		//		MeasureMenuItem((*(UAHMEASUREMENUITEM*)lArgument), height, width);
 		//	} return proceeded::True;
 	}
-
 	return proceeded::False;
 }
 
 int32 stdcall wWinMain(
-	sal_in handleInstnace processInstance,	// The process we're given to run our program.
-	sal_io handleInstnace hPrevInstance,	// Now has no meaing it's 0 always.
-	sal_in wchar* cmdlineArgs,				// Contains command line arguments as a unicode string.
-	sal_in int32 windowState				// flag that says whether the window should appear minimized, maximied, shown normally.
+	sal_in handleInstnace process,	// The process we're given to run our program.
+	sal_io handleInstnace ignored,	// Now has no meaing it's 0 always.
+	sal_in wchar* cmdlineArgs,		// Contains command line arguments as a unicode string.
+	sal_in int32 windowState		// flag that says whether the window should appear minimized, maximied, shown normally.
 ){
-	resourceFile::Load(processInstance);	// Getting the resourceFiles loaded.
+	resourceFile::Load(process);	// Getting the resourceFiles loaded.
 
-	// Darkmode initialization.
-	#ifdef WINDOWS_VERSION_10
+	#ifdef WINDOWS_VERSION_10 // Darkmode initialization.
 	darkmode::Initialize();
-	if (darkmode::isEnabled) colorPalette = &window::theme::darkMode;
+	if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
 	#endif
 	
-	backgroundSecondary.Create((*colorPalette).backgroundSecondary);
-	backgroundSelected.Create((*colorPalette).backgroundSelected);
-	backgroundHovered.Create((*colorPalette).backgroundHovered);
-	backgroundPrimary.Create((*colorPalette).backgroundPrimary);
+	themes::InitializeBrushes();
 
 	// Main window creation.
-	Register(processInstance, resource.className.Pointer(), (windowProcedure)WindowMainProcedure, resource.iconId, resource.iconSmallId, resource.menuId, backgroundPrimary.Get());
-	if (Initialize(processInstance, resource.className.Pointer(), resource.title.Pointer(), windowState))
+	Register(process, resource.className.Pointer(), (windowProcedure)WindowMainProcedure, resource.iconId, resource.iconSmallId, resource.menuId, themes::backgroundPrimary.Get());
+	if (Initialize(process, resource.className.Pointer(), resource.title.Pointer(), windowState)) 
 		return 0;
-	mainProcessInstance = processInstance;
+
+	mainProcess = process;
 
 	{	// Program's main loop.
 		retrivedMessage message;
@@ -276,3 +304,10 @@ int32 stdcall wWinMain(
 		return (int32)message.wParam;
 	}
 }
+
+//MSG msg { 0 };
+//PeekMessage(&msg, window, 0, 0, PM_NOREMOVE);
+//while (msg.message == WM_SETTINGCHANGE) {
+//	PeekMessage(&msg, window, 0, 0, PM_REMOVE);
+//	PeekMessage(&msg, window, 0, 0, PM_NOREMOVE);
+//}

@@ -153,6 +153,7 @@
     <ClInclude Include="resources\Resource.h" />
     <ClInclude Include="resources\ResourceHandler.hpp" />
     <ClInclude Include="resources\settings\targetver.h" />
+    <ClInclude Include="resources\Themes.hpp" />
     <ClInclude Include="windows\WindowAbout.hpp" />
   </ItemGroup>
   <ItemGroup>

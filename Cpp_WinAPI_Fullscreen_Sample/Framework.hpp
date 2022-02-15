@@ -5,11 +5,11 @@
 #include "mst/winapi.hpp"
 using namespace mst;
 
-#include "resources/resourcehandler.hpp"		// Resource File.
+#include "resources/resourcehandler.hpp"	// Resource File.
+#include "resources/themes.hpp"				// Window themes.
 
 #define WIN32_LEAN_AND_MEAN					// Wyklucz rzadko używane rzeczy z nagłówków systemu Windows
 #include <windows.h>						// Pliki nagłówkowe systemu Windows
-//#include <uxtheme.h>
 
 // Pliki nagłówkowe środowiska uruchomieniowego języka C
 
