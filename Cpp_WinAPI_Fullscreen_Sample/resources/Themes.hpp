@@ -5,7 +5,7 @@ namespace themes {
 	using namespace winapi::window;
 
 	const theme::theme* colorPalette { &theme::lightMode };
-	theme::solidBrush backgroundPrimary, backgroundSecondary, backgroundHovered, backgroundSelected;
+	theme::solidBrush backgroundPrimary, backgroundSecondary, backgroundHovered, backgroundSelected, border;
 
 	block ChangeColorPalette(const theme::theme& newTheme) {
 		colorPalette = &newTheme;
@@ -23,6 +23,7 @@ namespace themes {
 		backgroundSelected.Create((*colorPalette).backgroundSelected);
 		backgroundHovered.Create((*colorPalette).backgroundHovered);
 		backgroundPrimary.Create((*colorPalette).backgroundPrimary);
+		border.Create((*colorPalette).borderColor);
 	}
 
 	block Destroy() {
@@ -30,6 +31,7 @@ namespace themes {
 		backgroundSelected.Destroy();
 		backgroundHovered.Destroy();
 		backgroundPrimary.Destroy();
+		border.Destroy();
 	}
 
 

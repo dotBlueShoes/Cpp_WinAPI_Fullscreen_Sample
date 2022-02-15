@@ -22,6 +22,7 @@ namespace windows {
 				return proceeded::True;
 
 			case (input)WM_CTLCOLORSTATIC: 
+			//case (input)WM_CTLCOLOREDIT:
 			case (input)WM_CTLCOLORDLG: {
 				displayContextHandle displayContext = (displayContextHandle)wArgument;
 				SetTextColor(displayContext, (*themes::colorPalette).textPrimary);
@@ -32,24 +33,40 @@ namespace windows {
 			case input::SettingChange:
 				if (darkmode::isSupported && darkmode::IsColorSchemeChangedMessage(lArgument)) {
 					if (++messageCounter == 10) {
-						SendMessageW(window, WM_THEMECHANGED, 0, 0);
+						SendMessageW(window, (uint32)input::ThemeChange, 0, 0);
 						messageCounter = 0;
 					}
 				} break;
 
 			case input::ThemeChange:
 				if (darkmode::isSupported) {
-					darkmode::proxy::AllowDarkModeForWindow(window, darkmode::isEnabled);
+					darkmode::isEnabled = darkmode::proxy::ShouldAppsUseDarkMode() && !darkmode::IsHighContrast();
 					darkmode::RefreshTitleBarTheme(window);
 
-					windowHandle button = GetDlgItem(window, IDOK);
-					darkmode::proxy::AllowDarkModeForWindow(button, darkmode::isEnabled);
-					SendMessageW(button, WM_THEMECHANGED, 0, 0); // ? Something is wrong
+					// This should happend only once but theres nothing wrong with it running again with each call on the very same window.
+					windowHandle button = GetDlgItem(window, buttonInput::Ok);
+					darkmode::AllowDarkModeForWindow(button);
+					SendMessageW(button, (uint32)input::ThemeChange, 0, 0);
 
-					SendMessageW(window, WM_CTLCOLORDLG, (messageW)(GetDC(window)), 0); // ? Something is wrong
+					if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
+					else themes::ChangeColorPalette(theme::lightMode);
+					themes::Destroy(); // This makes brushes white as the data holded there is no longer.
+					themes::InitializeBrushes();
+					
 					UpdateWindow(window);
 
-					//MessageBoxEx(window, L"Changed", L"About", MB_OK, 0);
+					// And it all makes sense now.
+					// The parent does not recive it's themechanged message first the child gets it first...
+					// even tho the visuals were saing the other.... which is fucked up.
+					// however it was tested with messageboxes only
+
+					// With this information now it's time to optimize it.
+					// Make it so the needed code runs once.
+					// - darkmode::isEnabled should only be assigned by "darkmode::proxy::ShouldAppsUseDarkMode() && !darkmode::IsHighContrast();" value.
+					// - This should happend once for the single firstmost setting change. not once for every setting change each window recives.
+					// - Same applies for Palette changes 
+					// - Finally it should be possible to place repetetive things that change among windows turning blackmode and vice versa inside function/s.
+
 				} break;
 				
 			case input::Command:

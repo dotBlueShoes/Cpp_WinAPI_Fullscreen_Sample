@@ -47,7 +47,7 @@ namespace windowMain::event {
 		// Refresh titlebar theme color.
 		#ifdef WINDOWS_VERSION_10
 		if (darkmode::isSupported) {
-			darkmode::proxy::AllowDarkModeForWindow(window, darkmode::isEnabled);
+			darkmode::AllowDarkModeForWindow(window);
 			darkmode::RefreshTitleBarTheme(window);
 		}
 		#endif
@@ -132,6 +132,12 @@ namespace windowMain::event {
 				messageCounter = 0;
 
 				darkmode::isEnabled = darkmode::proxy::ShouldAppsUseDarkMode() && !darkmode::IsHighContrast();
+
+				//if (darkmode::isEnabled)
+				//	MessageBoxEx(window, L"Enabled", L"Main", MB_OK, 0);
+				//else
+				//	MessageBoxEx(window, L"Disabled", L"Main", MB_OK, 0);
+
 				darkmode::RefreshTitleBarTheme(window);
 				SendMessageW(window, WM_THEMECHANGED, 0, 0);
 			}
@@ -225,7 +231,7 @@ proceeded stdcall WindowMainProcedure(
 
 			// UAHMENU
 			#ifdef WINDOWS_VERSION_10
-			event::uahmenubar::DrawBottomLine(window, drawContext, themes::backgroundPrimary.Get());
+			event::uahmenubar::DrawBottomLine(window, drawContext, themes::border.Get());
 			#endif
 			return proceeded::True;
 		}
