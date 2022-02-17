@@ -34,6 +34,8 @@
 // handle leaks
 // https://codereview.stackexchange.com/questions/20181/correct-way-of-using-hbrushes
 
+// 2. Brushes Prob - uneeded memory operations.
+
 #include "framework.hpp"
 #include "windows/windowAbout.hpp"
 using namespace winapi::window;
@@ -42,6 +44,7 @@ handleInstnace mainProcess; // Wystąpienie tej aplikacji.
 uint64 messageCounter { 0 }; // Anti queue overflow. Whenever we know how many msgs we get and how we want to respond to them.
 
 namespace windowMain::event {
+
 	inline proceeded Create(const windowHandle& window) {
 
 		// Refresh titlebar theme color.
@@ -62,9 +65,7 @@ namespace windowMain::event {
 		return proceeded::True;
 	}
 
-	// Calls whenever the window is being moved called via other, initialized and much more.
 	inline proceeded Paint(const windowHandle& window) {
-		//MessageBoxEx(window, L"Main", L"PaintCall", MB_OK, 0);
 		windowDrawContext drawContext;
 		displayContextHandle displayContext { BeginPaint(window, &drawContext) };
 
@@ -81,109 +82,32 @@ namespace windowMain::event {
 		DialogBox(mainProcess, MAKEINTRESOURCE(resource.windowAboutId), window, (DLGPROC)windows::About);
 		return proceeded::True;
 	}
+	
+	inline proceeded SettingChange(const windowHandle& window, const messageW& wArgument, const messageL& lArgument) {
+		if (darkmode::isSupported)
+			if (wArgument == 0)
+				return darkmode::CheckMainWindowWhetherImmersiveColorSet(window, (wchar*)lArgument, messageCounter);
+		return proceeded::False;
+	}
 
+	inline proceeded ThemeChange(windowHandle window) {
 
-	// This calls whenever we switch from dark mode to light mode and reverse.
-	inline proceeded SettingChange(const windowHandle& window, const messageW& parameterW, const messageL& parameterL) {
+		darkmode::RefreshTitleBarTheme(window);
 
-		// For some reason the changing from lightmode to darkmode and vice versa
-		// always take 10 calls in here with only wParam chaning.
-		// This wParam holds information obaut "SystemParametersInfo"
-		// I tried to decode it however those are not bit flags.
-		// Instead they have a hex meaning and they are added to each other.
-
-		// I found the a solution to discard unnecesery for me messages.
-		// Which would be done with "PeekMessage" and flags PM_NOREMOVE, PM_REMOVE
-		// however the actual working solution is to applay a counter and hope it will lock at 10 msgs.
-
-		/*
-		#ifdef WINDOWS_VERSION_10
-		// By that we know that it's either a
-		// - result of a change in policy settings ( 0 == user policy )
-		// - result of a change in locale settings
-		// - when an application sends this message
-		// All of these use parameterL as string therefore we can check that.
-		if (parameterW == NULL) {
-			// To check for ImmersiveColorSet
-			const wchar* pointer = (wchar*)parameterL;
-			const array<wchar, 18> function { L'I', L'm', L'm', L'e', L'r', L's', L'i', L'v', L'e', L'C', L'o', L'l', L'o', L'r', L'S', L'e', L't', L'\0' };
-			bool equals = 0;
-
-			for (int i = 0; pointer[i] != L'\0'; i++)
-				equals = equals + (pointer[i] == function[i]);
-			if (!equals) return proceeded::True;
-
-			if (darkmode::isSupported && darkmode::IsColorSchemeChangedMessage(parameterL)) {
-				MessageBoxEx(window, pointer, L"Main", MB_OK, 0);
-				darkmode::isEnabled = darkmode::proxy::ShouldAppsUseDarkMode() && !darkmode::IsHighContrast();
-
-				darkmode::RefreshTitleBarTheme(window);
-				SendMessageW(window, WM_THEMECHANGED, 0, 0); // ... its called like at least 7 times..
-				return proceeded::True;
-			}
-		} 
-		#endif
-		return proceeded::True;
-		//MessageBoxEx(window, L"Main", L"SettingChange", MB_OK, 0);
-		*/
-
-		if (darkmode::isSupported && darkmode::IsColorSchemeChangedMessage(parameterL)) {
-			if (++messageCounter == 10) {
-				messageCounter = 0;
-
-				darkmode::isEnabled = darkmode::proxy::ShouldAppsUseDarkMode() && !darkmode::IsHighContrast();
-
-				//if (darkmode::isEnabled)
-				//	MessageBoxEx(window, L"Enabled", L"Main", MB_OK, 0);
-				//else
-				//	MessageBoxEx(window, L"Disabled", L"Main", MB_OK, 0);
-
-				darkmode::RefreshTitleBarTheme(window);
-				SendMessageW(window, WM_THEMECHANGED, 0, 0);
-			}
+		if (window::event::uahmenubar::menuTheme) {
+			CloseThemeData(window::event::uahmenubar::menuTheme);
+			window::event::uahmenubar::menuTheme = nullptr;
 		}
 
-		/*
-		// A message that is sent to all top-level windows when the SystemParametersInfo function 
-		//  changes a system-wide setting or when policy settings have changed.
-		//  https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-settingchange
+		if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
+		else themes::ChangeColorPalette(theme::lightMode);
 
-		#ifdef WINDOWS_VERSION_10
-		if (parameterW == NULL) {
-			// By that we know that it's either a
-			// - result of a change in policy settings ( 0 == user policy )
-			// - result of a change in locale settings
-			// - when an application sends this message
-			// All of these use parameterL as string therefore we can check that.
-			{ // To check for ImmersiveColorSet
-				const wchar* pointer = (wchar*)parameterL;
-				const array<wchar, 18> function { L'I', L'm', L'm', L'e', L'r', L's', L'i', L'v', L'e', L'C', L'o', L'l', L'o', L'r', L'S', L'e', L't', L'\0' };
-				bool equals = 0;
+		themes::Destroy(); // This makes brushes white as the data holded there is no longer.
+		themes::InitializeBrushes();
+		InvalidateRect(window, NULL, TRUE);
+		DrawMenuBar(window);
 
-				for (int i = 0; pointer[i] != L'\0'; i++)
-					equals = equals + (pointer[i] == function[i]);
-				if (!equals) return proceeded::True;
-
-				if (darkmode::proxy::IsDarkModeAllowedForWindow(window) &&
-					darkmode::proxy::ShouldAppsUseDarkMode() &&
-					!darkmode::IsHighContrast()) {
-
-					MessageBoxEx(window, L"DARKMODE", L"SettingChange", MB_OK, 0);
-					// A switchero. Have in mind that if there would be other themes in future it should be handled here.
-					//darkmode::isEnabled = !darkmode::isEnabled;
-					//if (darkmode::isEnabled) colorPalette = &lightMode;
-					//else colorPalette = &lightMode;
-					// A redraw logic
-
-				} else
-					MessageBoxEx(window, L"LIGHTMODE", L"SettingChange", MB_OK, 0);
-
-				darkmode::proxy::RefreshImmersiveColorPolicyState();
-			}
-		} // else MessageBoxEx(window, L"SettingChange", L"Not NULL!", MB_OK, 0);
-		#endif
-		*/
-
+		// return proceeded::False;
 		return proceeded::True;
 	}
 
@@ -199,72 +123,35 @@ proceeded stdcall WindowMainProcedure(
 	messageL lArgument
 ) {
 	switch (message) {
-
-		// "return 0" means that WM_PAINT instead handles the background color setting up.
-		// It makes passing the background color at window class initialization useless.
-		case (input)WM_ERASEBKGND:
-			return proceeded::False;
+		namespace menu = event::uahmenubar;
 
 		case input::Command:
 			switch (GetMenuInput(wArgument)) {
-				case mainMenuInput::About: return windowMain::event::MessageAbout(window);
-				case mainMenuInput::Quit: DestroyWindow(window); return proceeded::True;
-				default: return windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
+				case mainMenuInput::About:	return windowMain::event::MessageAbout(window);
+				case mainMenuInput::Quit:	DestroyWindow(window); return proceeded::True;
+				default:					return windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
 			} break;
 
-		case input::Create: return windowMain::event::Create(window);
-		case input::Destroy: return windowMain::event::Destroy();
-		case input::Paint: return windowMain::event::Paint(window);
-		case input::SettingChange: return windowMain::event::SettingChange(window, wArgument, lArgument);
+		case (input)menu::UAHMenuEvent::DrawItem: return menu::DrawMenuItem(window, *((menu::UAHDRAWMENUITEM*)lArgument), themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
+		case (input)menu::UAHMenuEvent::Draw: return menu::DrawMenu(window, *((menu::UAHMENU*)lArgument), themes::backgroundSecondary);
 
-		#ifdef WINDOWS_VERSION_10
-		namespace eu = event::uahmenubar;
-		case (input)eu::UAHMenuEvent::DrawItem: return eu::DrawMenuItem(window, *(eu::UAHDRAWMENUITEM*)lArgument, themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
-		case (input)eu::UAHMenuEvent::Draw: return eu::DrawMenu(window, *(eu::UAHMENU*)lArgument, themes::backgroundSecondary);
-		#endif
+		case input::SettingChange: return windowMain::event::SettingChange(window, wArgument, lArgument);
+		case input::EraseBackgroundOnCalledInvalidPortion: return proceeded::False;
+		case input::ThemeChange: return windowMain::event::ThemeChange(window);
+		case input::Create: return windowMain::event::Create(window);
+		case input::Paint: return windowMain::event::Paint(window);
+		case input::Destroy: return windowMain::event::Destroy();
 
 		case input::NonClientAreaPaint:
 		case input::NonClientAreaFocus: {
 			displayContextHandle drawContext { GetWindowDC(window) };
-			// We need to get throuh some other paints first.
-			windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
-
-			// UAHMENU
-			#ifdef WINDOWS_VERSION_10
-			event::uahmenubar::DrawBottomLine(window, drawContext, themes::border.Get());
-			#endif
+			windowMain::event::Default(window, (uint32)message, wArgument, lArgument); // We need to get throuh some other paints first.
+			menu::DrawBottomLine(window, drawContext, themes::border.Get());
 			return proceeded::True;
 		}
 
-		case input::ThemeChange: {
-			#ifdef WINDOWS_VERSION_10 // UAHMENU
-			if (event::uahmenubar::menuTheme) {
-				CloseThemeData(event::uahmenubar::menuTheme);
-				event::uahmenubar::menuTheme = nullptr;
-			} 
-
-			// HEEEREEEE IT IS ALSO CALLED ABOUT 7 times do something with it!!!!
-			// I need to change the color either by creating a new window on top or doing some SelectObject magic i guess
-			if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
-			else themes::ChangeColorPalette(theme::lightMode);
-
-			//themes::ReplaceBrushes();
-			themes::Destroy(); // This makes brushes white as the data holded there is no longer.
-			themes::InitializeBrushes();
-			InvalidateRect(window, NULL, TRUE);
-			DrawMenuBar(window);
-
-			//SendMessageW(window, WM_PAINT, 0, 0);
-			//displayContextHandle displayContext = GetDC(window);
-			//SelectObject(displayContext, themes::backgroundPrimary.Get());
-			//event::uahmenubar::UAHMENU newMenuRef {GetMenu(window), GetWindowDC(window), 0};
-			//event::uahmenubar::DrawMenu(window, newMenuRef, themes::backgroundSecondary);
-			#endif
-		} break;
-
 		default: return windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
-
-		// Keeping it just to get u know thats the option.
+		/* Keeping it just to get u know thats the option.
 		//case (proceeded)uahmenubar::UAHMenuEvent::MeasureItem:
 		//	event::Default(window, message, wArgument, lArgument); // Allow the default window procedure to handle the message. So we have something and we do actions on top of that.
 		//	{ using namespace uahmenubar;
@@ -272,6 +159,7 @@ proceeded stdcall WindowMainProcedure(
 		//			width = (uint32)((*(UAHMEASUREMENUITEM*)lArgument).mis.itemWidth * 4.0 / 3.0);
 		//		MeasureMenuItem((*(UAHMEASUREMENUITEM*)lArgument), height, width);
 		//	} return proceeded::True;
+		*/
 	}
 	return proceeded::False;
 }
@@ -284,8 +172,8 @@ int32 stdcall wWinMain(
 ){
 	resourceFile::Load(process);	// Getting the resourceFiles loaded.
 
-	#ifdef WINDOWS_VERSION_10 // Darkmode initialization.
-	darkmode::Initialize();
+	#ifdef WINDOWS_VERSION_10 
+	darkmode::Initialize(); // Darkmode initialization.
 	if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
 	#endif
 	
@@ -311,9 +199,13 @@ int32 stdcall wWinMain(
 	}
 }
 
+
+
+// So i can return to these.
 //MSG msg { 0 };
 //PeekMessage(&msg, window, 0, 0, PM_NOREMOVE);
 //while (msg.message == WM_SETTINGCHANGE) {
 //	PeekMessage(&msg, window, 0, 0, PM_REMOVE);
 //	PeekMessage(&msg, window, 0, 0, PM_NOREMOVE);
 //}
+//MessageBoxEx(window, L"Main", L"PaintCall", MB_OK, 0);

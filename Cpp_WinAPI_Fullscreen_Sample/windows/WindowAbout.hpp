@@ -6,24 +6,29 @@ namespace windows {
 
 	uint64 messageCounter { 0 };
 
+	block RefreshWindowButton(windowHandle window, buttonInput button) {
+		windowHandle buttonWindow = GetDlgItem(window, (uint32)button);
+		darkmode::AllowDarkModeForWindow(buttonWindow);
+		SendMessageW(buttonWindow, (uint32)input::ThemeChange, 0, 0);
+	}
+
 	proceeded stdcall About(
 		windowHandle window,
 		input message,
-		messageW wArgument, 
+		messageW wArgument,
 		messageL lArgument
 	) {
 
 		switch (message) {
 			case input::InitializeDialogWindow:
 				if (darkmode::isSupported) {
-					SetWindowTheme(GetDlgItem(window, buttonInput::Ok), L"Explorer", nullptr);
-					SendMessageW(window, WM_THEMECHANGED, 0, 0);
-				}
-				return proceeded::True;
+					SetWindowTheme(GetDlgItem(window, (uint32)buttonInput::Ok), L"Explorer", nullptr); // Set up the darkmode/lightmode availability.
+					RefreshWindowButton(window, buttonInput::Ok); // Check whether lightmode/darkmode.
+					darkmode::RefreshTitleBarTheme(window);
+				} return proceeded::True;
 
-			case (input)WM_CTLCOLORSTATIC: 
-			//case (input)WM_CTLCOLOREDIT:
-			case (input)WM_CTLCOLORDLG: {
+			case input::ControlStaticBeforeDraw:
+			case input::DialogWindowBeforeDraw: {
 				displayContextHandle displayContext = (displayContextHandle)wArgument;
 				SetTextColor(displayContext, (*themes::colorPalette).textPrimary);
 				SetBkColor(displayContext, (*themes::colorPalette).backgroundPrimary);
@@ -31,29 +36,24 @@ namespace windows {
 			}
 
 			case input::SettingChange:
-				if (darkmode::isSupported && darkmode::IsColorSchemeChangedMessage(lArgument)) {
-					if (++messageCounter == 10) {
-						SendMessageW(window, (uint32)input::ThemeChange, 0, 0);
-						messageCounter = 0;
-					}
-				} break;
+				if (darkmode::isSupported)
+					if (wArgument == 0)
+						return darkmode::CheckWhetherImmersiveColorSet(window, (wchar*)lArgument, messageCounter);
+				return proceeded::False;
 
 			case input::ThemeChange:
 				if (darkmode::isSupported) {
-					darkmode::isEnabled = darkmode::proxy::ShouldAppsUseDarkMode() && !darkmode::IsHighContrast();
-					darkmode::RefreshTitleBarTheme(window);
 
-					// This should happend only once but theres nothing wrong with it running again with each call on the very same window.
-					windowHandle button = GetDlgItem(window, buttonInput::Ok);
-					darkmode::AllowDarkModeForWindow(button);
-					SendMessageW(button, (uint32)input::ThemeChange, 0, 0);
+					RefreshWindowButton(window, buttonInput::Ok);
+					darkmode::RefreshTitleBarTheme(window);
 
 					if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
 					else themes::ChangeColorPalette(theme::lightMode);
 					themes::Destroy(); // This makes brushes white as the data holded there is no longer.
 					themes::InitializeBrushes();
-					
-					UpdateWindow(window);
+
+					UpdateWindow(window); // to applay new background color.
+					return proceeded::True;
 
 					// And it all makes sense now.
 					// The parent does not recive it's themechanged message first the child gets it first...
@@ -67,10 +67,10 @@ namespace windows {
 					// - Same applies for Palette changes 
 					// - Finally it should be possible to place repetetive things that change among windows turning blackmode and vice versa inside function/s.
 
-				} break;
+				} return proceeded::False;
 				
 			case input::Command:
-				if (LOWORD(wArgument) == buttonInput::Ok || LOWORD(wArgument) == buttonInput::Cancel) {
+				if (LOWORD(wArgument) == (uint32)buttonInput::Ok || LOWORD(wArgument) == (uint32)buttonInput::Cancel) {
 					EndDialog(window, LOWORD(wArgument));
 					return proceeded::True;
 				}

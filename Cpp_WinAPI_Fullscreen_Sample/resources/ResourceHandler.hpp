@@ -34,7 +34,7 @@ namespace resourceFile {
 	}
 }
 
-enum buttonInput : uint16 {
+enum class buttonInput : uint16 {
 	Cancel = IDCANCEL,
 	Ok = IDOK
 };
