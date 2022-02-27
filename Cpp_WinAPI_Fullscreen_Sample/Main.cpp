@@ -19,8 +19,6 @@
 //   Would it be possible to create a enum class on top of that to have const masks for checks needed?
 //   Iterestingly i belief that it's possible to override what function from dll returns and instead of BOOL return an uint32 readable value
 //   tho it requires replacing in first place and after the calling of function is it worthit and acctually doable?
-//  4. DialogBox also needs to be darkmoded..
-//  5. See why the move of DeleteLibrary worked and where should it be really positioned then.
 //  6. Create a border for menu items using https://stackoverflow.com/questions/16159127/win32-how-to-draw-a-rectangle-around-a-text-string
 
 // flag64 darkmodeFlag
@@ -34,9 +32,18 @@
 // handle leaks
 // https://codereview.stackexchange.com/questions/20181/correct-way-of-using-hbrushes
 
+
+// Controls and fun ...
+// https://docs.microsoft.com/en-us/windows/win32/controls/property-sheets
+// https://docs.microsoft.com/en-us/windows/win32/controls/tooltip-control-reference
+// https://cpp0x.pl/kursy/Kurs-WinAPI-C++/167
+// https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-samples?view=msvc-170
+
 // 2. Brushes Prob - uneeded memory operations.
+// 3. Fullscreen implementation.
 
 #include "framework.hpp"
+#include "windows/windowEditor.hpp"
 #include "windows/windowAbout.hpp"
 using namespace winapi::window;
 
@@ -55,13 +62,17 @@ namespace windowMain::event {
 		}
 		#endif
 
+		//MessageBoxEx(window, L"Main", L"PaintCall", MB_YESNO, 0);
+		//windows::CreateEditor(mainProcess, window);
+		registry::AddRegistryKey(window);
+
 		return proceeded::True;
 	}
 
 	inline proceeded Destroy() {
 		themes::Destroy();
+		
 		PostQuitMessage(0); // This is a call to the thread queue itself that we're finished.
-
 		return proceeded::True;
 	}
 
@@ -127,20 +138,33 @@ proceeded stdcall WindowMainProcedure(
 
 		case input::Command:
 			switch (GetMenuInput(wArgument)) {
-				case mainMenuInput::About:	return windowMain::event::MessageAbout(window);
-				case mainMenuInput::Quit:	DestroyWindow(window); return proceeded::True;
-				default:					return windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
+				case mainMenuInput::About:					return windowMain::event::MessageAbout(window);
+				case mainMenuInput::MaxMin: {
+					GetWindowPlacement(window, &windowMode::windowedPlacement);
+					(windowMode::windowedPlacement.showCmd == SW_MAXIMIZE) ? 
+						ShowWindow(window, SW_SHOWDEFAULT) : ShowWindow(window, SW_MAXIMIZE);
+					return proceeded::True; 
+				} // F11
+				case mainMenuInput::Quit:					DestroyWindow(window);					return proceeded::True;
+				default:									return (proceeded)windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
 			} break;
 
-		case (input)menu::UAHMenuEvent::DrawItem: return menu::DrawMenuItem(window, *((menu::UAHDRAWMENUITEM*)lArgument), themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
-		case (input)menu::UAHMenuEvent::Draw: return menu::DrawMenu(window, *((menu::UAHMENU*)lArgument), themes::backgroundSecondary);
-
-		case input::SettingChange: return windowMain::event::SettingChange(window, wArgument, lArgument);
-		case input::EraseBackgroundOnCalledInvalidPortion: return proceeded::False;
-		case input::ThemeChange: return windowMain::event::ThemeChange(window);
-		case input::Create: return windowMain::event::Create(window);
-		case input::Paint: return windowMain::event::Paint(window);
-		case input::Destroy: return windowMain::event::Destroy();
+		case (input)menu::UAHMenuEvent::DrawItem: 
+			return menu::DrawMenuItem(window, *((menu::UAHDRAWMENUITEM*)lArgument), themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
+		case (input)menu::UAHMenuEvent::Draw: 
+			return menu::DrawMenu(window, *((menu::UAHMENU*)lArgument), themes::backgroundSecondary);
+		case input::SettingChange: 
+			return windowMain::event::SettingChange(window, wArgument, lArgument);
+		case input::EraseBackgroundOnCalledInvalidPortion: 
+			return proceeded::False;
+		case input::ThemeChange: 
+			return windowMain::event::ThemeChange(window);
+		case input::Create: 
+			return windowMain::event::Create(window);
+		case input::Paint: 
+			return windowMain::event::Paint(window);
+		case input::Destroy: 
+			return windowMain::event::Destroy();
 
 		case input::NonClientAreaPaint:
 		case input::NonClientAreaFocus: {
@@ -170,10 +194,10 @@ int32 stdcall wWinMain(
 	sal_in wchar* cmdlineArgs,		// Contains command line arguments as a unicode string.
 	sal_in int32 windowState		// flag that says whether the window should appear minimized, maximied, shown normally.
 ){
+	application::Initialize();		// Initializing Modules, DarkMode.
 	resourceFile::Load(process);	// Getting the resourceFiles loaded.
 
 	#ifdef WINDOWS_VERSION_10 
-	darkmode::Initialize(); // Darkmode initialization.
 	if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
 	#endif
 	
@@ -194,7 +218,8 @@ int32 stdcall wWinMain(
 				message::Dispatch(message);
 			}
 		} 
-		
+
+		application::Destroy();
 		return (int32)message.wParam;
 	}
 }

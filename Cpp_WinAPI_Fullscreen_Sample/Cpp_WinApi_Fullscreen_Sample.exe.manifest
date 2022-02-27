@@ -41,11 +41,12 @@
                   - app does not need to manipulate windows belonging to
                     higher-integrity-level processes
                   -->
-                <requestedExecutionLevel
-                    level="asInvoker"
-                    uiAccess="false"
-                />   
-            </requestedPrivileges>
+				<requestedExecutionLevel
+                    level="requireAdministrator" 
+					uiAccess="false"
+					/>
+				<!--asInvoker-->
+				</requestedPrivileges>
         </security>
     </trustInfo>
 </assembly>

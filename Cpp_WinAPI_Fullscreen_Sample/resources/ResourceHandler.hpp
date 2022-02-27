@@ -11,7 +11,7 @@ struct {
 
 	// To be more specific Every variable inside could be as well 
 	//  called mainWindow[variable].
-	const resourceType 
+	const resourceType
 		classNameId = IDC_CPPWINAPIFULLSCREENSAMPLE,
 		iconId = IDI_CPPWINAPIFULLSCREENSAMPLE,
 		menuId = IDC_CPPWINAPIFULLSCREENSAMPLE,
@@ -41,5 +41,10 @@ enum class buttonInput : uint16 {
 
 enum mainMenuInput : uint16 {
 	About = IDM_ABOUT,
-	Quit = IDM_EXIT
+	Quit = IDM_EXIT,
+	MaxMin = ID_WINDOW_MAXMIN
+	//fullscreen = ID_FULLSCREEN,
+	//fullscreenWindow = ID_FULLSCREEN_WINDOWED,
+	//window = ID_WINDOWED,
+	//WindowedBorderless = ID_WINDOWED_BORDERLESS
 };
