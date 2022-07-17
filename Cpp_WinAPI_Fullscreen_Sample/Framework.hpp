@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "mst.hpp"							// MST - My Library that i use instead of standard libs and other known libraries.
-#define WINDOWS_VERSION _WIN32_WINNT_WIN10
-#include "mst/winapi.hpp"
+#include "MST.hpp"							// MST - My Library that i use instead of standard libs and other known libraries.
+#define WINDOWS_VERSION_10
+#include "MST/winapi.hpp"
 using namespace mst;
 
 #include "resources/resourcehandler.hpp"	// Resource File.

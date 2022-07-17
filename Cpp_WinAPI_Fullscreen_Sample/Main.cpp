@@ -20,6 +20,7 @@
 //   Iterestingly i belief that it's possible to override what function from dll returns and instead of BOOL return an uint32 readable value
 //   tho it requires replacing in first place and after the calling of function is it worthit and acctually doable?
 //  6. Create a border for menu items using https://stackoverflow.com/questions/16159127/win32-how-to-draw-a-rectangle-around-a-text-string
+//  7. Enum inheritance https://www.codeproject.com/articles/16150/inheriting-a-c-enum-type
 
 // flag64 darkmodeFlag
 // enum class darkmodeFlag : flag64 {
@@ -64,7 +65,8 @@ namespace windowMain::event {
 
 		//MessageBoxEx(window, L"Main", L"PaintCall", MB_YESNO, 0);
 		//windows::CreateEditor(mainProcess, window);
-		registry::AddRegistryKey(window);
+		//registry::AddRegistryKey(window);
+		registry::RemoveRegistryKey(window);
 
 		return proceeded::True;
 	}
@@ -138,31 +140,42 @@ proceeded stdcall WindowMainProcedure(
 
 		case input::Command:
 			switch (GetMenuInput(wArgument)) {
-				case mainMenuInput::About:					return windowMain::event::MessageAbout(window);
+				case mainMenuInput::About: return windowMain::event::MessageAbout(window);
+				case mainMenuInput::Quit: DestroyWindow(window); return proceeded::True;
+
 				case mainMenuInput::MaxMin: {
 					GetWindowPlacement(window, &windowMode::windowedPlacement);
-					(windowMode::windowedPlacement.showCmd == SW_MAXIMIZE) ? 
+					(windowMode::windowedPlacement.showCmd == SW_MAXIMIZE) ?
 						ShowWindow(window, SW_SHOWDEFAULT) : ShowWindow(window, SW_MAXIMIZE);
-					return proceeded::True; 
+					return proceeded::True;
 				} // F11
-				case mainMenuInput::Quit:					DestroyWindow(window);					return proceeded::True;
-				default:									return (proceeded)windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
+
+				default: return (proceeded)windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
 			} break;
 
 		case (input)menu::UAHMenuEvent::DrawItem: 
-			return menu::DrawMenuItem(window, *((menu::UAHDRAWMENUITEM*)lArgument), themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
+			auto menuItem { *((menu::UAHDRAWMENUITEM*)lArgument) };
+			return menu::DrawMenuItem(window, menuItem, themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
+
 		case (input)menu::UAHMenuEvent::Draw: 
-			return menu::DrawMenu(window, *((menu::UAHMENU*)lArgument), themes::backgroundSecondary);
+			auto menuInstance { *((menu::UAHMENU*)lArgument) };
+			return menu::DrawMenu(window, menuInstance, themes::backgroundSecondary);
+
 		case input::SettingChange: 
 			return windowMain::event::SettingChange(window, wArgument, lArgument);
+
 		case input::EraseBackgroundOnCalledInvalidPortion: 
 			return proceeded::False;
+
 		case input::ThemeChange: 
 			return windowMain::event::ThemeChange(window);
+
 		case input::Create: 
 			return windowMain::event::Create(window);
+
 		case input::Paint: 
 			return windowMain::event::Paint(window);
+
 		case input::Destroy: 
 			return windowMain::event::Destroy();
 

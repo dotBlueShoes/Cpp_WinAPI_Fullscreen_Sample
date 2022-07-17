@@ -7,7 +7,7 @@ namespace windows {
 	uint64 messageCounter { 0 };
 
 	block RefreshWindowButton(windowHandle window, buttonInput button) {
-		windowHandle buttonWindow = GetDlgItem(window, (uint32)button);
+		windowHandle buttonWindow { GetDlgItem(window, (uint32)button) };
 		darkmode::AllowDarkModeForWindow(buttonWindow);
 		SendMessageW(buttonWindow, (uint32)input::ThemeChange, 0, 0);
 	}
@@ -29,7 +29,7 @@ namespace windows {
 
 			case input::ControlStaticBeforeDraw:
 			case input::DialogWindowBeforeDraw: {
-				displayContextHandle displayContext = (displayContextHandle)wArgument;
+				displayContextHandle displayContext { (displayContextHandle)wArgument };
 				SetTextColor(displayContext, (*themes::colorPalette).textPrimary);
 				SetBkColor(displayContext, (*themes::colorPalette).backgroundPrimary);
 				return (proceeded)((INT_PTR)(themes::backgroundPrimary.Get()));
