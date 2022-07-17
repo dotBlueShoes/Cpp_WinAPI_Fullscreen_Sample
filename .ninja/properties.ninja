@@ -1,0 +1,4 @@
+# Project Properties File
+projectName = Cpp_WinAPI_Fullscreen_Sample
+projectTitle = Cpp_WinAPI_Fullscreen_Sample
+buildDir = build\x64

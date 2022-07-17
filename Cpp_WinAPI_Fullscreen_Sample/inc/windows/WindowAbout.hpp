@@ -1,5 +1,5 @@
 #pragma once
-#include "../framework.hpp"
+#include "Framework.hpp"
 using namespace winapi::window;
 
 namespace windows {
@@ -74,6 +74,9 @@ namespace windows {
 					EndDialog(window, LOWORD(wArgument));
 					return proceeded::True;
 				}
+				
+			default:
+				break;
 		}
 
 		return proceeded::False;

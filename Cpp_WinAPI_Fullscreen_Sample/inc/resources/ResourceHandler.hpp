@@ -1,9 +1,9 @@
 #pragma once
-#include "settings/targetver.h"		// WinAPI version control - GUI look.
 #include "resource.h"				// Resource itself
 
-#include "mst.hpp"
-#include "mst/winapi.hpp"
+#include "settings/targetver.h"
+#include "MST.hpp"
+#include "MST/WinAPI.hpp"
 using namespace mst;
 using namespace winapi;
 
@@ -30,7 +30,7 @@ namespace resourceFile {
 		wideString::Load(instance, resource.classNameId, resource.className.Pointer(), (int32)resource.className.Length());
 		wideString::Load(instance, resource.titleId, resource.title.Pointer(), (int32)resource.title.Length());
 		// Getting the keyMap
-		resource.keys = accelerator::Load(instance, MAKEINTRESOURCE(resource.classNameId));
+		resource.keys = accelerator::Load(instance, MAKEINTRESOURCEW(resource.classNameId));
 	}
 }
 

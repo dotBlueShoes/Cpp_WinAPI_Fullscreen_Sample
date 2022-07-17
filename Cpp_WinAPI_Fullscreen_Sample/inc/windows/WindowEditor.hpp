@@ -1,6 +1,6 @@
 #pragma once
 #pragma comment(lib, "comctl32.lib")
-#include "../framework.hpp"
+#include "Framework.hpp"
 #include "commctrl.h"
 #include "richedit.h"
 
@@ -13,13 +13,13 @@ namespace windows {
 		RECT parentWindowSize;
 		GetWindowRect(window, &parentWindowSize);
 
-		windowHandle richText = CreateWindowEx(0, MSFTEDIT_CLASS, L"Type here",
+		windowHandle richText = CreateWindowExW(0, MSFTEDIT_CLASS, L"Type here",
 			ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 0, 0,
 			parentWindowSize.right - parentWindowSize.left - 16, parentWindowSize.bottom - parentWindowSize.top - 59, // dunno why these numbers prob becouse non client area. 
 			window, NULL, process, NULL);
 
 		SendMessage(richText, EM_SETBKGNDCOLOR, 0, themes::colorPalette->backgroundSelected); // background color
-		CHARFORMAT2 cf { 0 };
+		CHARFORMAT2 cf { {0} };
 		cf.cbSize = sizeof cf;
 		cf.dwMask = CFM_BACKCOLOR | CFM_COLOR; // Text background color and text color
 		cf.crBackColor = themes::colorPalette->backgroundSecondary;

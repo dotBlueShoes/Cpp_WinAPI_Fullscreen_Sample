@@ -1,0 +1,93 @@
+# https://ninja-build.org/manual.html
+# https://clang.llvm.org/get_started.html
+# https://clang.llvm.org/docs/ClangCommandLineReference.html
+# https://clang.llvm.org/docs/UsersManual.html
+# https://npp-user-manual.org/docs/session/
+# https://ninja-build.org/manual.html#ref_rule_command
+# https://ninja-build.org/manual.html#ref_dependencies
+
+# TODO, ToLearn
+#  4. See for information on what execlty is running and when...
+#  compilation, linking, building process exaclly i want to know that well...
+#  5. Make it all easy to update somehow. clang, ninja, powershell, notepad++
+#  7. Try getting a notepad++ highlighter for .ninja files.
+#  8. Make a build and run chain.
+#  9. Make it able to have libs connected to the build
+#  -. Run troghol and winapi projects here.
+
+# GRAVEYARD
+# Older version in which args are takes as $in and the command itself as $out.
+# rule cc
+#   command = clang++ $compileFlags $in -o $out
+# build Sample.exe : cc sample/src/sample.cpp sample/src/main.cpp 
+
+include .ninja\properties.ninja
+include .ninja\secret.ninja
+
+# NINJA
+
+builddir = $buildDir
+
+# Libraries
+
+mstIncludePath = $mstPath\inc
+
+# Compilation Arguments :
+
+srcList = $projectName\src\main.cpp
+globalIncludePath = $projectName\inc
+errorLimit = 10
+cppStandard = -std=c++20
+linkerLibraries = -l "$winLibPath\kernel32" -l "$winLibPath\user32" -l "$winLibPath\gdi32" -l "$winLibPath\comdlg32" -l "$winLibPath\AdvAPI32"
+
+# Windows Terminal Arguments :
+
+tabColor = "#022"
+
+# RULES
+
+rule compile
+  command = clang++ $
+  -Wall $cppStandard $
+  -ferror-limit=$errorLimit $
+  -I $globalIncludePath -I $mstIncludePath $
+  $srcList -o $
+  $projectPath\$buildDir\$projectTitle.exe $linkerLibraries
+
+rule clear
+  command = rm $projectPath\$buildDir\$projectTitle.exe
+  
+rule run 
+  command = $projectPath\$buildDir\$projectTitle.exe
+  #command = wt -w 1 $
+  #--title $projectTitle $
+  #--tabColor $tabColor $
+  #$projectPath\$buildDir\$projectTitle.exe
+  
+# Setups project path in .ninja/secret.ninja
+rule setup
+  command = cmd /c wt -w 1 $
+  --title $projectTitle $
+  --tabColor $tabColor $
+  $toolsPath --setup %cd%
+  
+rule refresh
+  command = cmd /c $toolsPath --refresh-npp $
+  $projectName.npp $
+  $projectPath\$projectName $mstPath
+  
+# https://docs.microsoft.com/en-us/cpp/build/understanding-manifest-generation-for-c-cpp-programs?view=msvc-170
+rule add_manifest
+  command = cmd /c $mt -manifest $
+  $projectPath\$projectName\$projectTitle.exe.manifest $
+  -outputresource:$projectPath\$buildDir\$projectTitle.exe;1
+  
+# BUILDS
+  
+build bld : compile
+build rsh : refresh
+build cls : clear
+build stp : setup
+build run : run
+build adm : add_manifest
+

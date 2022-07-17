@@ -43,9 +43,9 @@
 // 2. Brushes Prob - uneeded memory operations.
 // 3. Fullscreen implementation.
 
-#include "framework.hpp"
-#include "windows/windowEditor.hpp"
-#include "windows/windowAbout.hpp"
+#include "Framework.hpp"
+#include "windows/WindowEditor.hpp"
+#include "windows/WindowAbout.hpp"
 using namespace winapi::window;
 
 handleInstnace mainProcess; // Wystąpienie tej aplikacji.
@@ -138,7 +138,7 @@ proceeded stdcall WindowMainProcedure(
 	switch (message) {
 		namespace menu = event::uahmenubar;
 
-		case input::Command:
+		case input::Command: {
 			switch (GetMenuInput(wArgument)) {
 				case mainMenuInput::About: return windowMain::event::MessageAbout(window);
 				case mainMenuInput::Quit: DestroyWindow(window); return proceeded::True;
@@ -152,33 +152,42 @@ proceeded stdcall WindowMainProcedure(
 
 				default: return (proceeded)windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
 			} break;
+		}
 
-		case (input)menu::UAHMenuEvent::DrawItem: 
+		case (input)menu::UAHMenuEvent::DrawItem: {
 			auto menuItem { *((menu::UAHDRAWMENUITEM*)lArgument) };
 			return menu::DrawMenuItem(window, menuItem, themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
+		}
 
-		case (input)menu::UAHMenuEvent::Draw: 
+		case (input)menu::UAHMenuEvent::Draw: {
 			auto menuInstance { *((menu::UAHMENU*)lArgument) };
 			return menu::DrawMenu(window, menuInstance, themes::backgroundSecondary);
+		}
 
-		case input::SettingChange: 
+		case input::SettingChange: {
 			return windowMain::event::SettingChange(window, wArgument, lArgument);
+		}
 
-		case input::EraseBackgroundOnCalledInvalidPortion: 
+		case input::EraseBackgroundOnCalledInvalidPortion: {
 			return proceeded::False;
+		}
 
-		case input::ThemeChange: 
+		case input::ThemeChange: {
 			return windowMain::event::ThemeChange(window);
+		}
 
-		case input::Create: 
+		case input::Create: {
 			return windowMain::event::Create(window);
-
-		case input::Paint: 
+		}
+		
+		case input::Paint: {
 			return windowMain::event::Paint(window);
+		}
 
-		case input::Destroy: 
+		case input::Destroy: {
 			return windowMain::event::Destroy();
-
+		}
+		
 		case input::NonClientAreaPaint:
 		case input::NonClientAreaFocus: {
 			displayContextHandle drawContext { GetWindowDC(window) };
@@ -187,7 +196,10 @@ proceeded stdcall WindowMainProcedure(
 			return proceeded::True;
 		}
 
-		default: return windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
+		default: {
+			return windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
+		}
+		
 		/* Keeping it just to get u know thats the option.
 		//case (proceeded)uahmenubar::UAHMenuEvent::MeasureItem:
 		//	event::Default(window, message, wArgument, lArgument); // Allow the default window procedure to handle the message. So we have something and we do actions on top of that.

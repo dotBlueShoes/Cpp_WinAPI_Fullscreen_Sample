@@ -1,3 +1,4 @@
+## VISUAL STUDIO
 # Cache / Options Visual Studio Category
 .vs/
 
@@ -12,3 +13,24 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+
+# More Build Results
+/Troghol/[Dd]ebug/
+/Troghol/[Rr]elease/
+/Troghol/x64/
+/Troghol/x86/
+
+
+## CPP_NPP_CLANG_ENVIROMENT
+
+# Environmental stuff.
+/build/
+
+# Personal stuff.
+.ninja/secret.ninja
+.obsidian/
+
+*.zip
+*.exe
+*.npp
+*.ninja_log
