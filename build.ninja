@@ -46,13 +46,15 @@ tabColor = "#022"
 
 # RULES
 
+# Last line links the resource file!
 rule compile
   command = clang++ $
   -Wall $cppStandard $
   -ferror-limit=$errorLimit $
   -I $globalIncludePath -I $mstIncludePath $
   $srcList -o $
-  $projectPath\$buildDir\$projectTitle.exe $linkerLibraries
+  $projectPath\$buildDir\$projectTitle.exe $linkerLibraries $
+  "$projectPath\$projectName\inc\resources\$projectTitle.res"
 
 rule clear
   command = rm $projectPath\$buildDir\$projectTitle.exe
@@ -82,6 +84,18 @@ rule add_manifest
   $projectPath\$projectName\$projectTitle.exe.manifest $
   -outputresource:$projectPath\$buildDir\$projectTitle.exe;1
   
+  
+# https://docs.microsoft.com/en-us/windows/win32/menurc/using-rc-the-rc-command-line-
+# https://digitalmars.com/ctg/ctgRC.html
+# https://stackoverflow.com/questions/4291526/how-do-i-link-a-rc-resource-file-when-compiling-a-win32-app-with-gcc-through
+# https://stackoverflow.com/questions/25160245/clang-linking-with-a-so-file
+  
+rule compile_resoure
+  command = $rc -X $
+  -I "$winIncludePath\shared" $
+  -I "$winIncludePath\um" $
+  -R "$projectPath\$projectName\inc\resources\$projectTitle.rc" 
+  
 # BUILDS
   
 build bld : compile
@@ -90,4 +104,5 @@ build cls : clear
 build stp : setup
 build run : run
 build adm : add_manifest
+build crs : compile_resoure
 

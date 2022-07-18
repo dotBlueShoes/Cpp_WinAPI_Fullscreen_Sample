@@ -219,6 +219,8 @@ int32 stdcall wWinMain(
 	sal_in wchar* cmdlineArgs,		// Contains command line arguments as a unicode string.
 	sal_in int32 windowState		// flag that says whether the window should appear minimized, maximied, shown normally.
 ){
+	
+	
 	application::Initialize();		// Initializing Modules, DarkMode.
 	resourceFile::Load(process);	// Getting the resourceFiles loaded.
 
@@ -227,7 +229,7 @@ int32 stdcall wWinMain(
 	#endif
 	
 	themes::InitializeBrushes();
-
+	
 	// Main window creation.
 	Register(process, resource.className.Pointer(), (windowProcedure)WindowMainProcedure, resource.iconId, resource.iconSmallId, resource.menuId, themes::backgroundPrimary.Get());
 	if (Initialize(process, resource.className.Pointer(), resource.title.Pointer(), windowState)) 
