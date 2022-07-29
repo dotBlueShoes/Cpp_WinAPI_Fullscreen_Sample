@@ -64,7 +64,7 @@ namespace windowMain::event {
 		#endif
 
 		//MessageBoxEx(window, L"Main", L"PaintCall", MB_YESNO, 0);
-		//windows::CreateEditor(mainProcess, window);
+		windows::CreateEditor(mainProcess, window);
 		//registry::AddRegistryKey(window);
 		registry::RemoveRegistryKey(window);
 

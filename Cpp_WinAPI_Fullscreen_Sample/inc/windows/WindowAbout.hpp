@@ -22,8 +22,8 @@ namespace windows {
 		switch (message) {
 			case input::InitializeDialogWindow:
 				if (darkmode::isSupported) {
-					SetWindowTheme(GetDlgItem(window, (uint32)buttonInput::Ok), L"Explorer", nullptr); // Set up the darkmode/lightmode availability.
-					RefreshWindowButton(window, buttonInput::Ok); // Check whether lightmode/darkmode.
+					SetWindowTheme(GetDlgItem(window, (uint32)buttonInput::Ok), L"Explorer", nullptr);	// Set up the darkmode/lightmode availability.
+					RefreshWindowButton(window, buttonInput::Ok); 										// Check whether lightmode/darkmode.
 					darkmode::RefreshTitleBarTheme(window);
 				} return proceeded::True;
 
