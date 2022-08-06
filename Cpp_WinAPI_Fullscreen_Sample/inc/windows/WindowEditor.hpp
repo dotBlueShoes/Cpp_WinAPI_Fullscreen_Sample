@@ -1,10 +1,5 @@
 #pragma once
-#pragma comment(lib, "comctl32.lib")
 #include "Framework.hpp"
-#include "commctrl.h"
-#include "richedit.h"
-
-#include <atlstr.h>
 
 using namespace winapi::window;
 
@@ -54,20 +49,26 @@ namespace windows {
 
 		RECT parentWindowSize;
 		GetWindowRect(window, &parentWindowSize);
+		
+		//const Rect otherhuh (parentWindowSize);
+		
+		
+		
+		// [in] const INT  *lpDx
 
-		windowHandle richText = CreateWindowExW(
-			0, 
-			MSFTEDIT_CLASS, 
-			sample.Pointer(),
-			ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 
-			xOffset /*-1*/,  // X
-			0,	// Y
-			parentWindowSize.right - parentWindowSize.left - 16 - (xOffset * 2), // Width
-			parentWindowSize.bottom - parentWindowSize.top - 59, // Height
-			window, NULL, process, NULL);
+		// 1 windowHandle richText = CreateWindowExW(
+		// 1 	0, 
+		// 1 	MSFTEDIT_CLASS, 
+		// 1 	sample.Pointer(),
+		// 1 	ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 
+		// 1 	xOffset /*-1*/,  // X
+		// 1 	0,	// Y
+		// 1 	parentWindowSize.right - parentWindowSize.left - 16 - (xOffset * 2), // Width
+		// 1 	parentWindowSize.bottom - parentWindowSize.top - 59, // Height
+		// 1 	window, NULL, process, NULL);
 
 		// Background color change
-		SendMessage(richText, EM_SETBKGNDCOLOR, 0, themes::colorPalette->backgroundPrimary); 
+		// 1 SendMessage(richText, EM_SETBKGNDCOLOR, 0, themes::colorPalette->backgroundPrimary); 
 		
 		CHARFORMAT2 colorMap1 {{ 0 }};
 		colorMap1.cbSize = sizeof ( CHARFORMAT2 ); // Indicate which version of the structure is being used.
@@ -75,40 +76,40 @@ namespace windows {
 		colorMap1.crBackColor = themes::colorPalette->backgroundPrimary;
 		colorMap1.crTextColor = themes::colorPalette->textPrimary;
 		
-		//CHARFORMAT2 colorMap2 {{ 0 }};
-		//colorMap2.cbSize = sizeof ( CHARFORMAT2 ); // Indicate which version of the structure is being used.
-		//colorMap2.dwMask = CFM_BACKCOLOR | CFM_COLOR; // Text background color and text color
-		//colorMap2.crBackColor = themes::colorPalette->textPrimary;
-		//colorMap2.crTextColor = themes::colorPalette->backgroundSecondary;
+		// X CHARFORMAT2 colorMap2 {{ 0 }};
+		// X colorMap2.cbSize = sizeof ( CHARFORMAT2 ); // Indicate which version of the structure is being used.
+		// X colorMap2.dwMask = CFM_BACKCOLOR | CFM_COLOR; // Text background color and text color
+		// X colorMap2.crBackColor = themes::colorPalette->textPrimary;
+		// X colorMap2.crTextColor = themes::colorPalette->backgroundSecondary;
 		
-		SendMessage(richText, EM_SETCHARFORMAT, 0, (LPARAM)&colorMap1);	// The default character format is set.
-		//SendMessage(richText, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&colorMap2);
+		// 1 SendMessage(richText, EM_SETCHARFORMAT, 0, (LPARAM)&colorMap1);	// The default character format is set.
+		// X SendMessage(richText, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&colorMap2);
 		
-		//{
-		//	EDITSTREAM stream;
-		//	stream.dwCookie = (DWORD_PTR)sample.Pointer(); // pointer your rtf data
-		//	stream.dwError = 0;
-		//	stream.pfnCallback = (EDITSTREAMCALLBACK)RtfStreamCallback; // callback which will push down the next chunk of rtf data when needed
-		//
-		//	LRESULT bytesAccepted = 0;
-		//	bytesAccepted = SendMessage(richText, EM_STREAMIN, SF_RTF, (LPARAM)&stream);
-		//}
+		// X {
+		// X 	EDITSTREAM stream;
+		// X 	stream.dwCookie = (DWORD_PTR)sample.Pointer(); // pointer your rtf data
+		// X 	stream.dwError = 0;
+		// X 	stream.pfnCallback = (EDITSTREAMCALLBACK)RtfStreamCallback; // callback which will push down the next chunk of rtf data when needed
+		// X 
+		// X 	LRESULT bytesAccepted = 0;
+		// X 	bytesAccepted = SendMessage(richText, EM_STREAMIN, SF_RTF, (LPARAM)&stream);
+		// X }
 		
-		//{
-		//	CString sWriteText; //Where the text will be streamed from
-		//	sWriteText = L"Rich text is shown here in sample project";
-		//
-		//	// This is hard-coded for example purposes. It is likely this would
-		//	// be read from file or another source.
-		//	EDITSTREAM es;
-		//	es.dwCookie = (DWORD)&sWriteText; // Pass a pointer to the CString to the callback function
-		//	es.pfnCallback = MEditStreamInCallback; // Specify the pointer to the callback function
-		//
-		//	SendMessage(richText, EM_STREAMIN, SF_RTF, (LPARAM)&es);
-		//	//richText.StreamIn(SF_RTF, es); // Perform the streaming
-		//}
+		// X {
+		// X 	CString sWriteText; //Where the text will be streamed from
+		// X 	sWriteText = L"Rich text is shown here in sample project";
+		// X 
+		// X 	// This is hard-coded for example purposes. It is likely this would
+		// X 	// be read from file or another source.
+		// X 	EDITSTREAM es;
+		// X 	es.dwCookie = (DWORD)&sWriteText; // Pass a pointer to the CString to the callback function
+		// X 	es.pfnCallback = MEditStreamInCallback; // Specify the pointer to the callback function
+		// X 
+		// X 	SendMessage(richText, EM_STREAMIN, SF_RTF, (LPARAM)&es);
+		// X 	//richText.StreamIn(SF_RTF, es); // Perform the streaming
+		// X }
 
-		// SetWindowSubclass(window, richText , 0, 0); // uneeded right now.
+		// X SetWindowSubclass(window, richText , 0, 0); // uneeded right now.
 	}
 
 	proceeded stdcall Editor(
@@ -118,15 +119,15 @@ namespace windows {
 		messageL lArgument,
 		UINT_PTR uid, DWORD_PTR RefData
 	) {
-		//switch (message) {
-			//case EM_SETBKGNDCOLOR: {
-			//	//MessageBoxEx(window, L"RICHEDIT", L"PaintCall", MB_OK, 0);
-			//	displayContextHandle displayContext = (displayContextHandle)wArgument;
-			//	SetTextColor(displayContext, (*themes::colorPalette).textPrimary);
-			//	SetBkColor(displayContext, (*themes::colorPalette).backgroundPrimary);
-			//	return ((INT_PTR)(themes::backgroundPrimary.Get()));
-			//}
-		//}
+		// X switch (message) {
+		// X	 case EM_SETBKGNDCOLOR: {
+		// X	 	//MessageBoxEx(window, L"RICHEDIT", L"PaintCall", MB_OK, 0);
+		// X	 	displayContextHandle displayContext = (displayContextHandle)wArgument;
+		// X	 	SetTextColor(displayContext, (*themes::colorPalette).textPrimary);
+		// X	 	SetBkColor(displayContext, (*themes::colorPalette).backgroundPrimary);
+		// X	 	return ((INT_PTR)(themes::backgroundPrimary.Get()));
+		// X	 }
+		// X }
 		return (proceeded)DefSubclassProc(window, (uint32)message, wArgument, lArgument);
 	}
 

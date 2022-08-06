@@ -48,14 +48,17 @@
 #include "windows/WindowAbout.hpp"
 using namespace winapi::window;
 
-handleInstnace mainProcess; // Wystąpienie tej aplikacji.
-uint64 messageCounter { 0 }; // Anti queue overflow. Whenever we know how many msgs we get and how we want to respond to them.
+/// This application instance.
+handleInstnace mainProcess; 	
+
+/// Anti queue overflow mechanism. Whenever we know how many msgs we get and how we want to respond to them.
+uint64 messageCounter ( 0 ); 
 
 namespace windowMain::event {
 
 	inline proceeded Create(const windowHandle& window) {
 
-		// Refresh titlebar theme color.
+		/// Refresh titlebar theme color.
 		#ifdef WINDOWS_VERSION_10
 		if (darkmode::isSupported) {
 			darkmode::AllowDarkModeForWindow(window);
@@ -63,30 +66,58 @@ namespace windowMain::event {
 		}
 		#endif
 
-		//MessageBoxEx(window, L"Main", L"PaintCall", MB_YESNO, 0);
-		windows::CreateEditor(mainProcess, window);
+		//MessageBoxEx(window, L"Main", L"Call", MB_YESNO, 0);
+		
+		/// Creation of inner windows that have their own drawing system. 
+		//windows::CreateEditor(mainProcess, window);
+		
 		//registry::AddRegistryKey(window);
-		registry::RemoveRegistryKey(window);
+		//registry::RemoveRegistryKey(window);
 
 		return proceeded::True;
 	}
 
 	inline proceeded Destroy() {
 		themes::Destroy();
-		
-		PostQuitMessage(0); // This is a call to the thread queue itself that we're finished.
+		PostQuitMessage(0); 		/// Call to the thread queue itself that we're finished.
 		return proceeded::True;
 	}
 
+
 	inline proceeded Paint(const windowHandle& window) {
+		const array<winapi::wchar, 10> sample { L"Type here" };
+		
 		windowDrawContext drawContext;
-		displayContextHandle displayContext { BeginPaint(window, &drawContext) };
-
 		rect clientArea { 0 };
-		GetClientRect(window, &clientArea);
-		FillRect(displayContext, &clientArea, themes::backgroundPrimary.Get());
-
-		EndPaint(window, &drawContext);
+		
+		{
+			displayContextHandle displayContext ( BeginPaint(window, &drawContext) );
+			
+			/// To get the whole "background" area.
+			GetClientRect(window, &clientArea);
+			
+			/// Setting up the background and text color. This takes action in windows created here.
+			SetBkColor(displayContext, themes::colorPalette->backgroundPrimary);
+			SetTextColor(displayContext, themes::colorPalette->textPrimary);
+			
+			/// If we woudn't recreate some window/s with each draw we could use this
+			/// to simply make our background the default we wanted. SetBkColor wouldn't be needed then.
+			//FillRect(displayContext, &clientArea, themes::backgroundPrimary.Get());
+			
+			/// Displing some text in a clientArea making the background color change.
+			ExtTextOutW (
+				displayContext,			/// on what we are drawing
+				0,						/// x coordinate
+				0,						/// y coordinate
+				ETO_OPAQUE,				/// styles
+				&clientArea,			/// rect specyfing the window coordinates
+				sample.Pointer(),		/// string
+				sample.Length(),		/// string length
+				nullptr					/// distance between letters
+			);
+			
+			EndPaint(window, &drawContext);
+		}
 
 		return proceeded::True;
 	}
@@ -115,12 +146,12 @@ namespace windowMain::event {
 		if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
 		else themes::ChangeColorPalette(theme::lightMode);
 
-		themes::Destroy(); // This makes brushes white as the data holded there is no longer.
+		/// This makes brushes white as the data holded there is no longer available.
+		themes::Destroy(); 
 		themes::InitializeBrushes();
 		InvalidateRect(window, NULL, TRUE);
 		DrawMenuBar(window);
 
-		// return proceeded::False;
 		return proceeded::True;
 	}
 
@@ -155,12 +186,12 @@ proceeded stdcall WindowMainProcedure(
 		}
 
 		case (input)menu::UAHMenuEvent::DrawItem: {
-			auto menuItem { *((menu::UAHDRAWMENUITEM*)lArgument) };
+			auto menuItem ( *((menu::UAHDRAWMENUITEM*)lArgument) );
 			return menu::DrawMenuItem(window, menuItem, themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
 		}
 
 		case (input)menu::UAHMenuEvent::Draw: {
-			auto menuInstance { *((menu::UAHMENU*)lArgument) };
+			auto menuInstance ( *((menu::UAHMENU*)lArgument) );
 			return menu::DrawMenu(window, menuInstance, themes::backgroundSecondary);
 		}
 
