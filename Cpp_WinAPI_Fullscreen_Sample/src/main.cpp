@@ -175,9 +175,11 @@ proceeded stdcall WindowMainProcedure(
 				case mainMenuInput::Quit: DestroyWindow(window); return proceeded::True;
 
 				case mainMenuInput::MaxMin: {
+					
 					GetWindowPlacement(window, &windowMode::windowedPlacement);
-					(windowMode::windowedPlacement.showCmd == SW_MAXIMIZE) ?
-						ShowWindow(window, SW_SHOWDEFAULT) : ShowWindow(window, SW_MAXIMIZE);
+					if (windowMode::windowedPlacement.showCmd == SW_MAXIMIZE) ShowWindow(window, SW_SHOWDEFAULT);
+					else ShowWindow(window, SW_MAXIMIZE);
+						
 					return proceeded::True;
 				} // F11
 
@@ -185,6 +187,11 @@ proceeded stdcall WindowMainProcedure(
 			} break;
 		}
 
+		/// Clang questions enum values specified outside the used type... 
+		///  As i want menu theming to be optional and not any way dirived it stays this way.
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wswitch"
+		
 		case (input)menu::UAHMenuEvent::DrawItem: {
 			auto menuItem ( *((menu::UAHDRAWMENUITEM*)lArgument) );
 			return menu::DrawMenuItem(window, menuItem, themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
@@ -194,30 +201,27 @@ proceeded stdcall WindowMainProcedure(
 			auto menuInstance ( *((menu::UAHMENU*)lArgument) );
 			return menu::DrawMenu(window, menuInstance, themes::backgroundSecondary);
 		}
-
-		case input::SettingChange: {
-			return windowMain::event::SettingChange(window, wArgument, lArgument);
-		}
-
-		case input::EraseBackgroundOnCalledInvalidPortion: {
-			return proceeded::False;
-		}
-
-		case input::ThemeChange: {
-			return windowMain::event::ThemeChange(window);
-		}
-
-		case input::Create: {
-			return windowMain::event::Create(window);
-		}
 		
-		case input::Paint: {
-			return windowMain::event::Paint(window);
-		}
+		#pragma GCC diagnostic pop
 
-		case input::Destroy: {
+
+		case input::SettingChange:
+			return windowMain::event::SettingChange(window, wArgument, lArgument);
+
+		case input::EraseBackgroundOnCalledInvalidPortion:
+			return proceeded::False;
+
+		case input::ThemeChange:
+			return windowMain::event::ThemeChange(window);
+
+		case input::Create:
+			return windowMain::event::Create(window);
+		
+		case input::Paint:
+			return windowMain::event::Paint(window);
+
+		case input::Destroy:
 			return windowMain::event::Destroy();
-		}
 		
 		case input::NonClientAreaPaint:
 		case input::NonClientAreaFocus: {
@@ -227,9 +231,8 @@ proceeded stdcall WindowMainProcedure(
 			return proceeded::True;
 		}
 
-		default: {
+		default:
 			return windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
-		}
 		
 		/* Keeping it just to get u know thats the option.
 		//case (proceeded)uahmenubar::UAHMenuEvent::MeasureItem:
@@ -241,6 +244,7 @@ proceeded stdcall WindowMainProcedure(
 		//	} return proceeded::True;
 		*/
 	}
+	
 	return proceeded::False;
 }
 

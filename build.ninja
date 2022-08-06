@@ -7,19 +7,7 @@
 # https://ninja-build.org/manual.html#ref_dependencies
 
 # TODO, ToLearn
-#  4. See for information on what execlty is running and when...
-#  compilation, linking, building process exaclly i want to know that well...
-#  5. Make it all easy to update somehow. clang, ninja, powershell, notepad++
-#  7. Try getting a notepad++ highlighter for .ninja files.
-#  8. Make a build and run chain.
-#  9. Make it able to have libs connected to the build
-#  -. Run troghol and winapi projects here.
-
-# GRAVEYARD
-# Older version in which args are takes as $in and the command itself as $out.
-# rule cc
-#   command = clang++ $compileFlags $in -o $out
-# build Sample.exe : cc sample/src/sample.cpp sample/src/main.cpp 
+#  1. There was more things with debug something doing. Look for it.
 
 include .ninja\properties.ninja
 include .ninja\secret.ninja
@@ -34,11 +22,13 @@ mstIncludePath = $mstPath\inc
 
 # Compilation Arguments :
 
+linkerLibraries = -l "$winLibPath\kernel32" -l "$winLibPath\user32" -l "$winLibPath\gdi32" -l "$winLibPath\comdlg32" -l "$winLibPath\AdvAPI32"
 srcList = $projectName\src\main.cpp
 globalIncludePath = $projectName\inc
-errorLimit = 10
 cppStandard = -std=c++20
-linkerLibraries = -l "$winLibPath\kernel32" -l "$winLibPath\user32" -l "$winLibPath\gdi32" -l "$winLibPath\comdlg32" -l "$winLibPath\AdvAPI32"
+errorLimit = 10
+
+debugPath = debug
 
 # Windows Terminal Arguments :
 
@@ -52,8 +42,20 @@ rule compile
   -Wall $cppStandard $
   -ferror-limit=$errorLimit $
   -I $globalIncludePath -I $mstIncludePath $
-  $srcList -o $
-  $projectPath\$buildDir\$projectTitle.exe $linkerLibraries $
+  $srcList $
+  -o $projectPath\$buildDir\$projectTitle.exe $
+  $linkerLibraries $
+  "$projectPath\$projectName\inc\resources\$projectTitle.res"
+  
+rule debug
+  command = clang++ $
+  -Wall $cppStandard $
+  -ferror-limit=$errorLimit $
+  -I $globalIncludePath -I $mstIncludePath $
+  $srcList $
+  -o $projectPath\$buildDir\$debugPath\$projectTitle.exe $
+  --debug $
+  $linkerLibraries $
   "$projectPath\$projectName\inc\resources\$projectTitle.res"
 
 rule clear
@@ -61,10 +63,6 @@ rule clear
   
 rule run 
   command = $projectPath\$buildDir\$projectTitle.exe
-  #command = wt -w 1 $
-  #--title $projectTitle $
-  #--tabColor $tabColor $
-  #$projectPath\$buildDir\$projectTitle.exe
   
 # Setups project path in .ninja/secret.ninja
 rule setup
@@ -90,7 +88,7 @@ rule add_manifest
 # https://stackoverflow.com/questions/4291526/how-do-i-link-a-rc-resource-file-when-compiling-a-win32-app-with-gcc-through
 # https://stackoverflow.com/questions/25160245/clang-linking-with-a-so-file
   
-rule compile_resoure
+rule compile_resource
   command = $rc -X $
   -I "$winIncludePath\shared" $
   -I "$winIncludePath\um" $
@@ -99,10 +97,11 @@ rule compile_resoure
 # BUILDS
   
 build bld : compile
+build dbg : debug
 build rsh : refresh
 build cls : clear
 build stp : setup
 build run : run
 build adm : add_manifest
-build crs : compile_resoure
+build crs : compile_resource
 
