@@ -54,7 +54,7 @@
 
 
 
-
+# TODO
 - registry
 - child windows
 - a focus test on those child windows would be great.
@@ -64,3 +64,9 @@
 - more of [in] [out] use.
 - clear this todo and other comments.
 - create a repo for registryToolApp
+
+# LINKS
+
+- https://stackoverflow.com/questions/33261966/what-is-app-aps-file-in-visual-c // .APS file
+- https://docs.microsoft.com/en-us/windows/win32/midl/out-idl // [in], [out] and others
+- https://docs.microsoft.com/en-us/windows/win32/controls/individual-control-info // All windows oficial controls
