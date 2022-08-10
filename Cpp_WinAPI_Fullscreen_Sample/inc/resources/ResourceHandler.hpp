@@ -1,7 +1,7 @@
 #pragma once
 #include "resource.h"				// Resource itself
 
-#include "settings/targetver.h"
+#include "Settings/targetver.h"
 #include "MST.hpp"
 #include "MST/WinAPI.hpp"
 using namespace mst;

@@ -7,8 +7,8 @@
 #include "MST/WinAPI.hpp"
 using namespace mst;
 
-#include "resources/ResourceHandler.hpp"	// Resource File.
-#include "resources/Themes.hpp"				// Window themes.
+#include "Resources/ResourceHandler.hpp"	// Resource File.
+#include "Resources/Themes.hpp"				// Window themes.
 
 #define WIN32_LEAN_AND_MEAN					// Wyklucz rzadko używane rzeczy z nagłówków systemu Windows
 #include <windows.h>						// Pliki nagłówkowe systemu Windows
@@ -23,3 +23,7 @@ using namespace mst;
 #include "commctrl.h"
 #include "richedit.h"
 #include <atlstr.h>
+
+/// Global variables.
+/// This application instance.
+handleInstnace mainProcess; 
