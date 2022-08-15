@@ -26,4 +26,4 @@ using namespace mst;
 
 /// Global variables.
 /// This application instance.
-handleInstnace mainProcess; 
+handleInstance mainProcess; 

@@ -7,8 +7,8 @@ using namespace winapi::window;
 uint64 messageCounter ( 0 ); 
 
 int32 stdcall wWinMain(
-	[in] handleInstnace process,	// The process we're given to run our program.
-	[out] handleInstnace ignored,	// Now has no meaing it's 0 always.
+	[in] handleInstance process,	// The process we're given to run our program.
+	[out] handleInstance ignored,	// Now has no meaing it's 0 always.
 	[in] wchar* cmdlineArgs,		// Contains command line arguments as a unicode string.
 	[in] int32 windowState			// flag that says whether the window should appear minimized, maximied, shown normally.
 ){

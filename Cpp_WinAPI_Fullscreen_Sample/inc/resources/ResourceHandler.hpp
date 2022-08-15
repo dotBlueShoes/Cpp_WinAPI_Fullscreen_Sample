@@ -25,7 +25,7 @@ struct {
 } resource;
 
 namespace resourceFile {
-	block Load(handleInstnace instance) {
+	block Load(handleInstance instance) {
 		// Possesing string data from aresource file.
 		wideString::Load(instance, resource.classNameId, resource.className.Pointer(), (int32)resource.className.Length());
 		wideString::Load(instance, resource.titleId, resource.title.Pointer(), (int32)resource.title.Length());

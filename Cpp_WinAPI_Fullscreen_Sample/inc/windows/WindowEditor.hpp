@@ -42,7 +42,7 @@ namespace windows {
 	// }
 
 	block CreateEditor(
-		const handleInstnace& process, 
+		const handleInstance& process, 
 		const windowHandle& window, 
 		const uint64& xOffset = 0, 
 		const uint64& yOffset = 0

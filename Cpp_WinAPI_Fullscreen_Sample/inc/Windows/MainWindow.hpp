@@ -257,14 +257,62 @@ namespace windows {
 		return proceeded::False;
 	}
 
-	windowHandle CreateMainWindow(
-		const handleInstnace& process, 
+	const windowHandle CreateChildWindow(
+		const handleInstance& process,
+		const windowHandle& parentWindow,
+		const windowProcedure& procedure,
+		const wchar* windowClassName,
+		const brushHandle& backgroundBrush,
+		const int32& windowState
+	) {
+		const uint32 windowStyle ( CS_HREDRAW | CS_VREDRAW );
+		windowClass windowProperties;
+			
+		windowProperties.cbSize 		= ( sizeof(windowClass) );
+		windowProperties.style			= windowStyle;
+		windowProperties.lpfnWndProc	= procedure;
+		windowProperties.cbClsExtra		= 0;
+		windowProperties.cbWndExtra		= 0;
+		windowProperties.hInstance		= process;
+		windowProperties.hIcon			= nullptr;
+		windowProperties.hCursor		= nullptr;
+		windowProperties.hbrBackground	= backgroundBrush;
+		windowProperties.lpszMenuName	= nullptr;
+		windowProperties.lpszClassName	= windowClassName;
+		windowProperties.hIconSm		= nullptr;
+		
+		RegisterClassExW(&windowProperties);
+		
+		{
+			const windowHandle childWindow = CreateWindowExW(
+				0, 
+				windowClassName, 
+				nullptr, 
+				WS_CHILD, 
+				0, 
+				0, 
+				800, 
+				600, 
+				parentWindow, 
+				nullptr, 
+				process, 
+				nullptr
+			);
+			
+			ShowWindow(childWindow, windowState);
+			UpdateWindow(childWindow);
+			return childWindow;
+		}
+	}
+
+	const windowHandle CreateMainWindow(
+		const handleInstance& process, 
 		const brushHandle& backgroundBrush,
 		const brushHandle& tempBrush,
 		const int32& windowState
 	) {
 		Register(process, resource.className.Pointer(), (windowProcedure)windows::WindowMainProcedure, resource.iconId, resource.iconSmallId, resource.menuId, backgroundBrush);
-		windowHandle mainWindow = Initialize(process, resource.className.Pointer(), resource.title.Pointer(), windowState);
+		const windowHandle mainWindow = Initialize(process, resource.className.Pointer(), resource.title.Pointer(), windowState);
 		
 		//
 		{ /// Child Window
@@ -286,10 +334,10 @@ namespace windows {
 		
 			RegisterClassExW(&windowProperties);
 			
-			windowHandle childWindow = CreateWindowExW(
+			const windowHandle childWindow = CreateWindowExW(
 				0, 
 				L"WindowClass2Name", 
-				L"Window2Name", 
+				nullptr, 
 				WS_CHILD, 
 				0, 
 				0, 
@@ -326,7 +374,7 @@ namespace windows {
 				windowHandle childchildWindow = CreateWindowExW(
 					0, 
 					L"WindowClass3Name", 
-					L"Window2Name", 
+					nullptr, 
 					WS_CHILD, 
 					0, 
 					0, 
