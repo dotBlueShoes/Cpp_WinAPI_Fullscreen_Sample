@@ -1,7 +1,5 @@
 ﻿#include "Framework.hpp"
-#include "Windows/MainWindow.hpp"
-
-using namespace winapi::window;	
+#include "Windows/WindowMain.hpp"	
 
 /// Anti queue overflow mechanism. Whenever we know how many msgs we get and how we want to respond to them.
 uint64 messageCounter ( 0 ); 
@@ -20,8 +18,7 @@ int32 stdcall wWinMain(
 	#endif
 	
 	themes::InitializeBrushes();
-
-	windows::CreateMainWindow(process, themes::backgroundPrimary.Get(), themes::backgroundSecondary.Get(), windowState);
+	windows::CreateMainWindow(process, themes::backgroundPrimary.Get(), windowState);
 	mainProcess = process;
 
 	{	// Program's main loop.

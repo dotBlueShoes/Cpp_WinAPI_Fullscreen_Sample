@@ -2,39 +2,13 @@
 #include "Windows/PreviewWindow/PreviewWindow.hpp"
 #include "Windows/DialogWindows/WindowAbout.hpp"
 #include "Windows/WindowEditor.hpp"
+#include "Windows/WindowRight.hpp"
+#include "Windows/WindowLeft.hpp"
 
 namespace windows {
 	
-	proceeded stdcall WindowOtherOtherProcedure(
-		windowHandle window,
-		input message,
-		messageW wArgument,
-		messageL lArgument
-	) {
-		switch (message) { 
-		
-			case input::Create: {
-				windows::CreateEditor(mainProcess, window);
-				return proceeded::True;
-			}
-			
-			default:
-				return (proceeded)DefWindowProcW(window, (uint32)message, wArgument, lArgument);
-		}
-	}
-	
-	proceeded stdcall WindowOtherProcedure(
-		windowHandle window,
-		input message,
-		messageW wArgument,
-		messageL lArgument
-	) {
-		switch (message) { 
-			default:
-				return (proceeded)DefWindowProcW(window, (uint32)message, wArgument, lArgument);
-		}
-	}
-	
+	windowHandle rightWindow, leftWindow;
+
 	namespace windowMain::event {
 
 		inline proceeded Create(const windowHandle& mainWindow) {
@@ -91,7 +65,6 @@ namespace windows {
 			PostQuitMessage(0); 		/// Call to the thread queue itself that we're finished.
 			return proceeded::True;
 		}
-	
 	
 		inline proceeded Paint(const windowHandle& window) {
 			const array<winapi::wchar, 10> sample { L"Type here" };
@@ -164,6 +137,39 @@ namespace windows {
 			return proceeded::True;
 		}
 	
+		inline proceeded Resize(windowHandle window, uint32 state, int clientX, int clientY) {
+			/// More about - https://devblogs.microsoft.com/oldnewthing/20050706-26/?p=35023
+			const uint64 windowsNumber(2);
+			const uint64 clientXHalf = clientX / 2;
+			
+			multipleWindowHandle windows = BeginDeferWindowPos(windowsNumber);
+			
+			if (windows) windows = DeferWindowPos (
+				windows, 
+				leftWindow,
+				nullptr, 
+				0, 
+				0, 
+				clientXHalf, 
+				clientY,
+				SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE
+			);
+				
+			if (windows) windows = DeferWindowPos (
+				windows, 
+				rightWindow, 
+				nullptr, 
+				clientXHalf, 
+				0, 
+				clientX - clientXHalf, 
+				clientY,
+				SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE
+			);
+				
+			if (windows) EndDeferWindowPos(windows);
+			return proceeded::False;
+		}
+	
 		inline proceeded Default(windowHandle window, uint32 message, messageW wArgument, messageL lArgument) {
 			return (proceeded)DefaultWindowProcedure(window, message, wArgument, lArgument);
 		}
@@ -203,7 +209,13 @@ namespace windows {
 			
 			case (input)menu::Event::DrawItem: {
 				auto menuItem ( *((menu::UAHDRAWMENUITEM*)lArgument) );
-				return menu::DrawMenuItem(window, menuItem, themes::backgroundSecondary, themes::backgroundSelected, themes::backgroundHovered, (*(themes::colorPalette)).textPrimary);
+				return menu::DrawMenuItem(
+					window, menuItem, 
+					themes::backgroundSecondary, 
+					themes::backgroundSelected, 
+					themes::backgroundHovered, 
+					(*(themes::colorPalette)).textPrimary
+				);
 			}
 	
 			case (input)menu::Event::Draw: {
@@ -212,7 +224,6 @@ namespace windows {
 			}
 			
 			#pragma GCC diagnostic pop
-	
 	
 			case input::SettingChange:
 				return windowMain::event::SettingChange(window, wArgument, lArgument);
@@ -239,7 +250,10 @@ namespace windows {
 				menu::DrawBottomLine(window, drawContext, themes::border.Get());
 				return proceeded::True;
 			}
-	
+			
+			case input::Resize:
+				windowMain::event::Resize(window, wArgument, LOWORD(lArgument), HIWORD(lArgument));
+				
 			default:
 				return windowMain::event::Default(window, (uint32)message, wArgument, lArgument);
 			
@@ -257,142 +271,67 @@ namespace windows {
 		return proceeded::False;
 	}
 
-	const windowHandle CreateChildWindow(
-		const handleInstance& process,
-		const windowHandle& parentWindow,
-		const windowProcedure& procedure,
-		const wchar* windowClassName,
-		const brushHandle& backgroundBrush,
-		const int32& windowState
-	) {
-		const uint32 windowStyle ( CS_HREDRAW | CS_VREDRAW );
-		windowClass windowProperties;
-			
-		windowProperties.cbSize 		= ( sizeof(windowClass) );
-		windowProperties.style			= windowStyle;
-		windowProperties.lpfnWndProc	= procedure;
-		windowProperties.cbClsExtra		= 0;
-		windowProperties.cbWndExtra		= 0;
-		windowProperties.hInstance		= process;
-		windowProperties.hIcon			= nullptr;
-		windowProperties.hCursor		= nullptr;
-		windowProperties.hbrBackground	= backgroundBrush;
-		windowProperties.lpszMenuName	= nullptr;
-		windowProperties.lpszClassName	= windowClassName;
-		windowProperties.hIconSm		= nullptr;
-		
-		RegisterClassExW(&windowProperties);
-		
-		{
-			const windowHandle childWindow = CreateWindowExW(
-				0, 
-				windowClassName, 
-				nullptr, 
-				WS_CHILD, 
-				0, 
-				0, 
-				800, 
-				600, 
-				parentWindow, 
-				nullptr, 
-				process, 
-				nullptr
-			);
-			
-			ShowWindow(childWindow, windowState);
-			UpdateWindow(childWindow);
-			return childWindow;
-		}
-	}
-
 	const windowHandle CreateMainWindow(
 		const handleInstance& process, 
 		const brushHandle& backgroundBrush,
-		const brushHandle& tempBrush,
 		const int32& windowState
 	) {
-		Register(process, resource.className.Pointer(), (windowProcedure)windows::WindowMainProcedure, resource.iconId, resource.iconSmallId, resource.menuId, backgroundBrush);
-		const windowHandle mainWindow = Initialize(process, resource.className.Pointer(), resource.title.Pointer(), windowState);
 		
-		//
-		{ /// Child Window
-			const uint32 windowStyle ( CS_HREDRAW | CS_VREDRAW );
-			windowClass windowProperties;
-			
-			windowProperties.cbSize 		= ( sizeof(windowClass) );
-			windowProperties.style			= windowStyle;
-			windowProperties.lpfnWndProc	= (windowProcedure)WindowOtherProcedure;
-			windowProperties.cbClsExtra		= 0;
-			windowProperties.cbWndExtra		= 0;
-			windowProperties.hInstance		= process;
-			windowProperties.hIcon			= nullptr;
-			windowProperties.hCursor		= nullptr;
-			windowProperties.hbrBackground	= tempBrush;
-			windowProperties.lpszMenuName	= nullptr;
-			windowProperties.lpszClassName	= L"WindowClass2Name";
-			windowProperties.hIconSm		= nullptr;
+		Register(
+			process, 
+			resource.className.Pointer(), 
+			(windowProcedure)windows::WindowMainProcedure, 
+			resource.iconId, 
+			resource.iconSmallId, 
+			resource.menuId, 
+			backgroundBrush
+		);
 		
-			RegisterClassExW(&windowProperties);
-			
-			const windowHandle childWindow = CreateWindowExW(
-				0, 
-				L"WindowClass2Name", 
-				nullptr, 
-				WS_CHILD, 
-				0, 
-				0, 
-				800, 
-				600, 
-				mainWindow, 
-				nullptr, 
+		{
+			const vector2<uint64> 
+				windowMainPoistion	( CW_USEDEFAULT, 0 ),
+				windowRightOffset	( 700, 0 ),
+				windowLeftOffset	( 0, 0 ),
+				windowRightSize		( 700, 800 ),
+				windowMainSize		( 1400, 800 ),
+				windowLeftSize		( 700, 800 );
+				
+			const windowHandle mainWindow ( Initialize(
 				process, 
-				nullptr
+				resource.className.Pointer(), 
+				resource.title.Pointer(), 
+				windowState,
+				windowMainPoistion,
+				windowMainSize
+			) ); 
+				
+			leftWindow = CreateChildWindow (
+				mainProcess, 
+				mainWindow, 
+				(windowProcedure)WindowLeftProcedure, 
+				(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
+				L"WindowClass3Name",
+				themes::backgroundPrimary.Get(),
+				windowState,
+				windowLeftOffset,
+				windowLeftSize
 			);
 			
-			ShowWindow(childWindow, windowState);
-			UpdateWindow(childWindow);
+			rightWindow = CreateChildWindow (
+				mainProcess, 
+				mainWindow, 
+				(windowProcedure)WindowRightProcedure, 
+				(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
+				L"WindowClass2Name",
+				themes::backgroundSecondary.Get(),
+				windowState,
+				windowRightOffset,
+				windowRightSize
+			);
 			
-			{ /// Child Child Window
-				const uint32 windowStyle ( CS_HREDRAW | CS_VREDRAW );
-				windowClass windowProperties;
-				
-				windowProperties.cbSize 		= ( sizeof(windowClass) );
-				windowProperties.style			= windowStyle;
-				windowProperties.lpfnWndProc	= (windowProcedure)WindowOtherOtherProcedure;
-				windowProperties.cbClsExtra		= 0;
-				windowProperties.cbWndExtra		= 0;
-				windowProperties.hInstance		= process;
-				windowProperties.hIcon			= nullptr;
-				windowProperties.hCursor		= nullptr;
-				windowProperties.hbrBackground	= backgroundBrush;
-				windowProperties.lpszMenuName	= nullptr;
-				windowProperties.lpszClassName	= L"WindowClass3Name";
-				windowProperties.hIconSm		= nullptr;
-			
-				RegisterClassExW(&windowProperties);
-				
-				windowHandle childchildWindow = CreateWindowExW(
-					0, 
-					L"WindowClass3Name", 
-					nullptr, 
-					WS_CHILD, 
-					0, 
-					0, 
-					400, 
-					300, 
-					childWindow, 
-					nullptr, 
-					process, 
-					nullptr
-				);
-				
-				ShowWindow(childchildWindow, windowState);
-				UpdateWindow(childchildWindow);
-			}
+			return mainWindow;
 		}
-		//
 		
-		return mainWindow;
 	}
 
 }

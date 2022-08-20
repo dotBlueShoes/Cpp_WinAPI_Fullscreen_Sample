@@ -10,8 +10,6 @@ namespace themes {
 	// Those are brushes which initialization requires referencing Colors.
 	// Solid brushes can paint in the set color.
 	theme::solidBrush backgroundPrimary, backgroundSecondary, backgroundHovered, backgroundSelected, border;
-	
-	
 
 	block ChangeColorPalette(const theme::theme& newTheme) { colorPalette = &newTheme; }
 
