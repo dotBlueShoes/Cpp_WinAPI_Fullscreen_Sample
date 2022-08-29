@@ -37,7 +37,7 @@ tabColor = "#022"
 # RULES
 
 # Last line links the resource file!
-rule compile
+rule compile_release
   command = clang++ $
   -Wall $cppStandard $
   -ferror-limit=$errorLimit $
@@ -47,7 +47,9 @@ rule compile
   $linkerLibraries $
   "$projectPath\$projectName\inc\resources\$projectTitle.res"
   
-rule debug
+# https://releases.llvm.org/13.0.0/tools/clang/docs/ClangCommandLineReference.html#debug-information-generation - debug ref
+# https://clang.llvm.org/docs/ClangCommandLineReference.html#preprocessor-flags
+rule compile_debug
   command = clang++ $
   -Wall $cppStandard $
   -ferror-limit=$errorLimit $
@@ -55,14 +57,18 @@ rule debug
   $srcList $
   -o $projectPath\$buildDir\$debugPath\$projectTitle.exe $
   --debug $
+  --define-macro DEBUG $
   $linkerLibraries $
   "$projectPath\$projectName\inc\resources\$projectTitle.res"
 
 rule clear
   command = rm $projectPath\$buildDir\$projectTitle.exe
   
-rule run 
+rule run_release 
   command = $projectPath\$buildDir\$projectTitle.exe
+  
+rule run_debug 
+  command = $projectPath\$buildDir\$debugPath\$projectTitle.exe
   
 # Setups project path in .ninja/secret.ninja
 rule setup
@@ -96,12 +102,15 @@ rule compile_resource
   
 # BUILDS
   
-build bld : compile
-build dbg : debug
+build bld : compile_release
+build dbb : compile_debug
+build run : run_release
+build dbr : run_debug
+
 build rsh : refresh
 build cls : clear
 build stp : setup
-build run : run
-build adm : add_manifest
 build crs : compile_resource
+build adm : add_manifest
+
 

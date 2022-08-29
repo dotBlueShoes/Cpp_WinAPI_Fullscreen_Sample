@@ -11,8 +11,11 @@ int32 stdcall wWinMain(
 	[in]	int32 windowState		/// flag that says whether the window should appear minimized, maximied, shown normally.
 ){
 	
-	// Debug
-	mst::winapi::debug::console::RedirectIOToConsole();
+	#ifdef DEBUG 
+	{	using namespace mst::winapi::debug;
+		console::RedirectIO();
+	} 
+	#endif
 	
 	application::Initialize();		/// Initializing Modules, DarkMode.
 	resourceFile::Load(process);	/// Getting the resourceFiles loaded.
