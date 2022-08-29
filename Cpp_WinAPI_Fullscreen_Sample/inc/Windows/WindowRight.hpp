@@ -15,26 +15,29 @@ namespace windows {
 		const auto SC_DRAG = SC_SIZE+9;
 		switch (message) { 
 				
-			case (input)WM_LBUTTONDOWN: {
+			case input::OnMouseLeftClickDown: {
 				GetWindowRect(window, &oldPosition);
 				/// To make the window dragable. 
 				PostMessage(window, WM_SYSCOMMAND, SC_DRAG, (LPARAM)NULL);
 				return proceeded::False;
 			}
 			
-			case (input)WM_MOVING: {
+			case input::OnMove: {
 				
 				/// To lock the Drag in x-axis.
 				rect& newPosition = *((rect*)lArgument);
 				newPosition.bottom = oldPosition.bottom;
 				newPosition.top = oldPosition.top;
 				
-				// Debug
-				// messageLength = swprintf_s(
-				// 	debugMessage, 
-				// 	L"[MOVING] %d, %d, %d, %d", 
-				// 	newPosition.left, newPosition.top, newPosition.right, newPosition.bottom
-				// );
+				#ifdef DEBUG
+				// NOT WORKING
+				std::cout << newPosition.left << ", " << newPosition.top << ", " << newPosition.right << ", " << newPosition.bottom << std::endl;
+				/// messageLength = swprintf_s(
+				///  	debugMessage, 
+				///  	L"[MOVING] %d, %d, %d, %d", 
+				///  	newPosition.left, newPosition.top, newPosition.right, newPosition.bottom
+				/// );
+				#endif
 				
 				return proceeded::True;
 			}
