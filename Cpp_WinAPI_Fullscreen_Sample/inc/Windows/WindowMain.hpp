@@ -139,21 +139,21 @@ namespace windows {
 	
 		inline proceeded Resize(windowHandle window, uint32 state, int clientX, int clientY) {
 			/// More about - https://devblogs.microsoft.com/oldnewthing/20050706-26/?p=35023
-			const uint64 windowsNumber(2);
-			const uint64 clientXHalf = clientX / 2;
+			const uint64 windowsNumber ( 2 );
+			const uint64 clientXHalf ( clientX / 2 );
 			
-			multipleWindowHandle windows = BeginDeferWindowPos(windowsNumber);
+			multipleWindowHandle windows ( BeginDeferWindowPos(windowsNumber) );
 			
-			if (windows) windows = DeferWindowPos (
-				windows, 
-				leftWindow,
-				nullptr, 
-				0, 
-				0, 
-				clientXHalf, 
-				clientY,
-				SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE
-			);
+			//if (windows) windows = DeferWindowPos (
+			//	windows, 
+			//	leftWindow,
+			//	nullptr, 
+			//	0, 
+			//	0, 
+			//	clientXHalf, 
+			//	clientY,
+			//	SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE
+			//);
 				
 			if (windows) windows = DeferWindowPos (
 				windows, 
@@ -305,17 +305,17 @@ namespace windows {
 				windowMainSize
 			) ); 
 				
-			leftWindow = CreateChildWindow (
-				mainProcess, 
-				mainWindow, 
-				(windowProcedure)WindowLeftProcedure, 
-				(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
-				L"WindowClass3Name",
-				themes::backgroundPrimary.Get(),
-				windowState,
-				windowLeftOffset,
-				windowLeftSize
-			);
+			//leftWindow = CreateChildWindow (
+			//	mainProcess, 
+			//	mainWindow, 
+			//	(windowProcedure)WindowLeftProcedure, 
+			//	(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
+			//	L"WindowClass3Name",
+			//	themes::backgroundPrimary.Get(),
+			//	windowState,
+			//	windowLeftOffset,
+			//	windowLeftSize
+			//);
 			
 			rightWindow = CreateChildWindow (
 				mainProcess, 

@@ -1,12 +1,13 @@
 ﻿#pragma once
 #pragma comment(lib, "comctl32.lib")
 
+#define DEBUG
+
 #include "MST.hpp"							// MST - My Library that i use instead of standard libs and other known libraries.
 #define WINDOWS_VERSION_10
 #include "MST/WinAPI.hpp"
 
 using namespace mst;
-using namespace mst::vector_n;
 using namespace mst::winapi::window;
 
 #include "Resources/ResourceHandler.hpp"	// Resource File.

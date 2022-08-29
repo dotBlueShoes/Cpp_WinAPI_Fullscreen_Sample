@@ -5,13 +5,17 @@
 uint64 messageCounter ( 0 ); 
 
 int32 stdcall wWinMain(
-	[in] handleInstance process,	// The process we're given to run our program.
-	[out] handleInstance ignored,	// Now has no meaing it's 0 always.
-	[in] wchar* cmdlineArgs,		// Contains command line arguments as a unicode string.
-	[in] int32 windowState			// flag that says whether the window should appear minimized, maximied, shown normally.
+	[in]	handleInstance process,	/// The process we're given to run our program.
+	[out]	handleInstance ignored,	/// Now has no meaing it's 0 always.
+	[in]	wchar* cmdlineArgs,		/// Contains command line arguments as a unicode string.
+	[in]	int32 windowState		/// flag that says whether the window should appear minimized, maximied, shown normally.
 ){
-	application::Initialize();		// Initializing Modules, DarkMode.
-	resourceFile::Load(process);	// Getting the resourceFiles loaded.
+	
+	// Debug
+	mst::winapi::debug::console::RedirectIOToConsole();
+	
+	application::Initialize();		/// Initializing Modules, DarkMode.
+	resourceFile::Load(process);	/// Getting the resourceFiles loaded.
 
 	#ifdef WINDOWS_VERSION_10 
 	if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
