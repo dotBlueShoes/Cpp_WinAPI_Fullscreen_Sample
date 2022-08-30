@@ -30,13 +30,17 @@ namespace windows {
 				newPosition.top = oldPosition.top;
 				
 				#ifdef DEBUG
-				// NOT WORKING
-				std::cout << newPosition.left << ", " << newPosition.top << ", " << newPosition.right << ", " << newPosition.bottom << std::endl;
-				/// messageLength = swprintf_s(
-				///  	debugMessage, 
-				///  	L"[MOVING] %d, %d, %d, %d", 
-				///  	newPosition.left, newPosition.top, newPosition.right, newPosition.bottom
-				/// );
+				{	using namespace mst::winapi::debug::console;
+					
+					const string message ( 
+						"pos: l: " 	+ ToString(newPosition.left) 	+ 
+						", u: " 	+ ToString(newPosition.top) 	+ 
+						", r: " 	+ ToString(newPosition.right) 	+ 
+						", d: " 	+ ToString(newPosition.bottom)
+					);
+					
+					LogInfo(LogLevel::Max, message);
+				}
 				#endif
 				
 				return proceeded::True;

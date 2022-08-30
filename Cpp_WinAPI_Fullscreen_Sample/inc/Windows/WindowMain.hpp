@@ -62,6 +62,13 @@ namespace windows {
 	
 		inline proceeded Destroy() {
 			themes::Destroy();
+			
+			#ifdef DEBUG 
+			{	using namespace mst::winapi::debug;
+				console::ReleaseIO();
+			} 
+			#endif
+			
 			PostQuitMessage(0); 		/// Call to the thread queue itself that we're finished.
 			return proceeded::True;
 		}

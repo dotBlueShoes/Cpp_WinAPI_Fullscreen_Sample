@@ -57,7 +57,7 @@ rule compile_debug
   $srcList $
   -o $projectPath\$buildDir\$debugPath\$projectTitle.exe $
   --debug $
-  --define-macro DEBUG $
+  --define-macro DEBUG=2 $
   $linkerLibraries $
   "$projectPath\$projectName\inc\resources\$projectTitle.res"
 
