@@ -39,7 +39,7 @@ namespace windows {
 						", d: " 	+ ToString(newPosition.bottom)
 					);
 					
-					LogInfo(LogLevel::Max, message);
+					LogInfo<LogLevel::Max>(message);
 				}
 				#endif
 				

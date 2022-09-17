@@ -30,9 +30,9 @@ namespace windows {
 			case input::ControlStaticBeforeDraw:
 			case input::DialogWindowBeforeDraw: {
 				displayContextHandle displayContext { (displayContextHandle)wArgument };
-				SetTextColor(displayContext, (*themes::colorPalette).textPrimary);
-				SetBkColor(displayContext, (*themes::colorPalette).backgroundPrimary);
-				return (proceeded)((INT_PTR)(themes::backgroundPrimary.Get()));
+				SetTextColor(displayContext, (*brushes::colors).text);
+				SetBkColor(displayContext, (*brushes::colors).primar);
+				return (proceeded)((INT_PTR)(brushes::primar.Get()));
 			}
 
 			case input::SettingChange:
@@ -47,10 +47,10 @@ namespace windows {
 					RefreshWindowButton(window, buttonInput::Ok);
 					darkmode::RefreshTitleBarTheme(window);
 
-					if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
-					else themes::ChangeColorPalette(theme::lightMode);
-					themes::Destroy(); // This makes brushes white as the data holded there is no longer.
-					themes::InitializeBrushes();
+					if (darkmode::isEnabled) brushes::ChangePalette(theme::dark);
+					else brushes::ChangePalette(theme::light);
+					brushes::Destroy(); // This makes brushes white as the data holded there is no longer.
+					brushes::Initialize();
 
 					UpdateWindow(window); // to applay new background color.
 					return proceeded::True;

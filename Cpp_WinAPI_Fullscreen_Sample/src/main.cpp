@@ -1,32 +1,34 @@
 ﻿#include "Framework.hpp"
 #include "Windows/WindowMain.hpp"	
 
-/// Anti queue overflow mechanism. Whenever we know how many msgs we get and how we want to respond to them.
-uint64 messageCounter ( 0 ); 
+// Anti queue overflow mechanism. Whenever we know how many msgs we get and how we want to respond to them.
+// uint64 messageCounter ( 0 ); 
 
 int32 stdcall wWinMain(
-	[in]	handleInstance process,	/// The process we're given to run our program.
-	[out]	handleInstance ignored,	/// Now has no meaing it's 0 always.
-	[in]	wchar* cmdlineArgs,		/// Contains command line arguments as a unicode string.
-	[in]	int32 windowState		/// flag that says whether the window should appear minimized, maximied, shown normally.
+	[in]	winapi::handleInstance process,	/// The process we're given to run our program.
+	[out]	winapi::handleInstance ignored,	/// Now has no meaing it's 0 always.
+	[in]	winapi::wchar* cmdlineArgs,		/// Contains command line arguments as a unicode string.
+	[in]	int32 windowState				/// Flag that says whether the window should appear minimized, maximied, shown normally.
 ){
 	
-	#ifdef DEBUG 
-	{	using namespace mst::winapi::debug;
-		console::RedirectIO();
-	} 
-	#endif
+	using namespace winapi;
+	const vector2<uint64> windowSize ( 1400, 800 );
+	
+	mainProcess = process; 			/// Setting up the Global
 	
 	application::Initialize();		/// Initializing Modules, DarkMode.
-	resourceFile::Load(process);	/// Getting the resourceFiles loaded.
-
-	#ifdef WINDOWS_VERSION_10 
-	if (darkmode::isEnabled) themes::ChangeColorPalette(theme::darkMode);
-	#endif
 	
-	themes::InitializeBrushes();
-	windows::CreateMainWindow(process, themes::backgroundPrimary.Get(), windowState);
-	mainProcess = process;
+	{ 	namespace dbg = mst::winapi::debug::console; 
+		dbg::LogInfo	("This debug message will display at the very begginging");
+		dbg::LogWarning	("This debug message will display at Second");
+		dbg::LogError	( "This debug message will display at Third");
+	}
+
+	if constexpr (SYSTEM_VERSION == SystemVersion::Windows10) 
+		brushes::ChangePalette(window::theme::dark);
+	
+	brushes::Initialize();
+	windows::mainWindow::Create(process, brushes::primar.Get(), windowState, windowSize);
 
 	{	// Program's main loop.
 		retrivedMessage message;

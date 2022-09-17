@@ -1,8 +1,6 @@
 #pragma once
 #include "Framework.hpp"
 
-using namespace winapi::window;
-
 // It appears that there is a better way then using RICHEDIT
 //  https://stackoverflow.com/questions/22109514/richedit-syntax-highligh
 //  however for now lets stick to it. And if i will be in need i might use
@@ -21,6 +19,8 @@ using namespace winapi::window;
 // https://docs.microsoft.com/en-us/windows/win32/controls/em-setcharformat
 
 namespace windows {
+	
+	using namespace winapi::window;
 	
 	// proceeded stdcall EditorProcedure(
 	// 	windowHandle window,
@@ -70,20 +70,20 @@ namespace windows {
 			);
 			
 			/// Background color change.
-			SendMessage(richText, EM_SETBKGNDCOLOR, 0, themes::colorPalette->backgroundPrimary); 
+			SendMessage(richText, EM_SETBKGNDCOLOR, 0, brushes::colors->primar); 
 			
 			{
 				CHARFORMAT2 colorMap1 {{ 0 }};
 				colorMap1.cbSize = sizeof ( CHARFORMAT2 ); // Indicate which version of the structure is being used.
 				colorMap1.dwMask = CFM_BACKCOLOR | CFM_COLOR; // Text background color and text color
-				colorMap1.crBackColor = themes::colorPalette->backgroundPrimary;
-				colorMap1.crTextColor = themes::colorPalette->textPrimary;
+				colorMap1.crBackColor = brushes::colors->primar;
+				colorMap1.crTextColor = brushes::colors->text;
 				
 				// X CHARFORMAT2 colorMap2 {{ 0 }};
 				// X colorMap2.cbSize = sizeof ( CHARFORMAT2 ); // Indicate which version of the structure is being used.
 				// X colorMap2.dwMask = CFM_BACKCOLOR | CFM_COLOR; // Text background color and text color
-				// X colorMap2.crBackColor = themes::colorPalette->textPrimary;
-				// X colorMap2.crTextColor = themes::colorPalette->backgroundSecondary;
+				// X colorMap2.crBackColor = brushes::colorPalette->textPrimary;
+				// X colorMap2.crTextColor = brushes::colorPalette->backgroundSecondary;
 				
 				/// Character format (text color, text background color).
 				SendMessage(richText, EM_SETCHARFORMAT, 0, (LPARAM)&colorMap1);	

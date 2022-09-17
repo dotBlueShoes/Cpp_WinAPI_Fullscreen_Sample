@@ -2,17 +2,15 @@
 #pragma comment(lib, "comctl32.lib")
 
 #include "MST.hpp"							// MST - My Library that i use instead of standard libs and other known libraries.
-#define WINDOWS_VERSION_10
 #include "MST/WinAPI.hpp"
 
 using namespace mst;
 using namespace mst::winapi::window;
 
 #include "Resources/ResourceHandler.hpp"	// Resource File.
-#include "Resources/Themes.hpp"				// Window themes.
+#include "Brushes.hpp"						// Window themes.
 
 //#define WIN32_LEAN_AND_MEAN					// Wyklucz rzadko używane rzeczy z nagłówków systemu Windows
-
 // Pliki nagłówkowe środowiska uruchomieniowego języka C
 
 #include <stdlib.h>

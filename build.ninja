@@ -6,9 +6,6 @@
 # https://ninja-build.org/manual.html#ref_rule_command
 # https://ninja-build.org/manual.html#ref_dependencies
 
-# TODO, ToLearn
-#  1. There was more things with debug something doing. Look for it.
-
 include .ninja\properties.ninja
 include .ninja\secret.ninja
 
@@ -36,7 +33,12 @@ tabColor = "#022"
 
 # RULES
 
-# Last line links the resource file!
+rule run_release 
+  command = $projectPath\$buildDir\$projectTitle.exe
+  
+rule run_debug 
+  command = $projectPath\$buildDir\$debugPath\$projectTitle.exe
+
 rule compile_release
   command = clang++ $
   -Wall $cppStandard $
@@ -44,6 +46,8 @@ rule compile_release
   -I $globalIncludePath -I $mstIncludePath $
   $srcList $
   -o $projectPath\$buildDir\$projectTitle.exe $
+  --define-macro SYSTEM_VERSION=$buildMachine $
+  --define-macro DEBUG=0 $
   $linkerLibraries $
   "$projectPath\$projectName\inc\resources\$projectTitle.res"
   
@@ -57,18 +61,13 @@ rule compile_debug
   $srcList $
   -o $projectPath\$buildDir\$debugPath\$projectTitle.exe $
   --debug $
-  --define-macro DEBUG=2 $
+  --define-macro SYSTEM_VERSION=$buildMachine $
+  --define-macro DEBUG=3 $
   $linkerLibraries $
   "$projectPath\$projectName\inc\resources\$projectTitle.res"
 
 rule clear
   command = rm $projectPath\$buildDir\$projectTitle.exe
-  
-rule run_release 
-  command = $projectPath\$buildDir\$projectTitle.exe
-  
-rule run_debug 
-  command = $projectPath\$buildDir\$debugPath\$projectTitle.exe
   
 # Setups project path in .ninja/secret.ninja
 rule setup
