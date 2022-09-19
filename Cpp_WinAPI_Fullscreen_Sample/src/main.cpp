@@ -1,11 +1,5 @@
 ﻿#include "Framework.hpp"
-
 #include "Windows/WindowMain.hpp"	
-#include "Resources/ResourceHandler.hpp"
-#include "Brushes.hpp"	
-
-// Anti queue overflow mechanism. Whenever we know how many msgs we get and how we want to respond to them.
-// uint64 messageCounter ( 0 ); 
 
 int32 stdcall wWinMain(
 	[in]	winapi::handleInstance process,	/// The process we're given to run our program.
@@ -13,7 +7,6 @@ int32 stdcall wWinMain(
 	[in]	winapi::wchar* cmdlineArgs,		/// Contains command line arguments as a unicode string.
 	[in]	int32 windowState				/// Flag that says whether the window should appear minimized, maximied, shown normally.
 ){
-	
 	using namespace winapi;
 	const vector2<uint64> windowSize ( 1400, 800 );
 	
@@ -22,7 +15,8 @@ int32 stdcall wWinMain(
 	application::Initialize();		/// Initializing Modules, DarkMode.
 	resourceHandler::Initialize(process);  /// Loading Strings into arrays.
 	
-	if constexpr (DEBUG) { 	namespace dbg = mst::winapi::debug::console; 
+	if constexpr (DEBUG) { 	
+		namespace dbg = winapi::debug::console; 
 		dbg::LogInfo	("This debug message will display at the very begginging");
 		dbg::LogWarning	("This debug message will display at Second");
 		dbg::LogError	("This debug message will display at Third");
@@ -46,5 +40,6 @@ int32 stdcall wWinMain(
 		application::Destroy();
 		return (int32)message.wParam;
 	}
-	return 0;
+	
+	return -1;
 }

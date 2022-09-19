@@ -5,7 +5,7 @@ using namespace winapi::window;
 
 namespace windows {
 	
-	block CreatePreviewWindow(const handleInstance& process, const windowHandle& window) {
+	block CreatePreviewWindow(const winapi::handleInstance& process, const winapi::windowHandle& window) {
 		
 		//const array<winapi::wchar, 10> sample { L"Type here" };
 		winapi::rect parentWindowSize;

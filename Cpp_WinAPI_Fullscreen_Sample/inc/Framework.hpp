@@ -5,9 +5,9 @@
 #include "MST/WinAPI.hpp"
 
 using namespace mst;
-using namespace mst::winapi::window;
+using namespace mst::winapi::window; // !
 
-#include "Resources/ResourceHandler.hpp"	// Resource File.
+#include "ResourceHandler.hpp"				// Resource File.
 #include "Brushes.hpp"						// Window themes.
 
 //#define WIN32_LEAN_AND_MEAN					// Wyklucz rzadko używane rzeczy z nagłówków systemu Windows
@@ -23,4 +23,4 @@ using namespace mst::winapi::window;
 #include <atlstr.h>
 
 /// Global variables.
-handleInstance mainProcess; /// This application instance.
+winapi::handleInstance mainProcess; /// This application instance.

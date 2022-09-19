@@ -42,8 +42,8 @@ namespace windows {
 	// }
 
 	block CreateEditor(
-		const handleInstance& process, 
-		const windowHandle& window, 
+		const winapi::handleInstance& process, 
+		const winapi::windowHandle& window, 
 		const uint64& xOffset = 0, 
 		const uint64& yOffset = 0
 	) {
@@ -54,7 +54,7 @@ namespace windows {
 		GetWindowRect(window, &parentWindowSize);
 		
 		{
-			windowHandle richText = CreateWindowExW(
+			winapi::windowHandle richText = CreateWindowExW(
 				0, 
 				MSFTEDIT_CLASS, 
 				windowDefaultText.Pointer(),

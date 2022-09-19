@@ -7,11 +7,11 @@
 
 namespace windows::mainWindow {
 	
-	windowHandle rightWindow, leftWindow;
+	winapi::windowHandle rightWindow, leftWindow;
 
 	namespace event {
 
-		inline proceeded Create(const windowHandle& mainWindow) {
+		inline proceeded Create(const winapi::windowHandle& mainWindow) {
 			
 			if constexpr (DEBUG)
 				winapi::debug::console::LogInfo("(CALL) Window-Main:Create");
@@ -72,14 +72,14 @@ namespace windows::mainWindow {
 			return proceeded::True;
 		}
 	
-		inline proceeded Paint(const windowHandle& window) {
+		inline proceeded Paint(const winapi::windowHandle& window) {
 			const array<winapi::wchar, 10> sample { L"Type here" };
 			
-			windowDrawContext drawContext;
-			rect clientArea { 0 };
+			winapi::windowDrawContext drawContext;
+			winapi::rect clientArea { 0 };
 			
 			{
-				displayContextHandle displayContext ( BeginPaint(window, &drawContext) );
+				winapi::displayContextHandle displayContext ( BeginPaint(window, &drawContext) );
 				
 				/// To get the whole "background" area.
 				GetClientRect(window, &clientArea);
@@ -110,25 +110,29 @@ namespace windows::mainWindow {
 			return proceeded::True;
 		}
 	
-		inline proceeded MessageAbout(const windowHandle& window) {
+		inline proceeded MessageAbout(const winapi::windowHandle& window) {
 			DialogBox(mainProcess, MAKEINTRESOURCE(resource.windowAboutId), window, (DLGPROC)windows::About);
 			return proceeded::True;
 		}
 		
-		inline proceeded SettingChange(const windowHandle& window, const messageW& wArgument, const messageL& lArgument) {
+		inline proceeded SettingChange(
+			const winapi::windowHandle& window, 
+			const winapi::messageW& wArgument, 
+			const winapi::messageL& lArgument
+		) {
 			if (darkmode::isSupported)
 				if (wArgument == 0)
-					return darkmode::CheckMainWindowWhetherImmersiveColorSet(window, (wchar*)lArgument, messageCounter);
+					return darkmode::CheckMainWindowWhetherImmersiveColorSet(window, (winapi::wchar*)lArgument, messageCounter);
 			return proceeded::False;
 		}
 	
-		inline proceeded ThemeChange(windowHandle window) {
+		inline proceeded ThemeChange(winapi::windowHandle window) {
 		
 			darkmode::RefreshTitleBarTheme(window);
 		
-			if (window::event::uahmenubar::menuTheme) {
-				CloseThemeData(window::event::uahmenubar::menuTheme);
-				window::event::uahmenubar::menuTheme = nullptr;
+			if (winapi::window::event::uahmenubar::menuTheme) {
+				CloseThemeData(winapi::window::event::uahmenubar::menuTheme);
+				winapi::window::event::uahmenubar::menuTheme = nullptr;
 			}
 		
 			if (darkmode::isEnabled) brushes::ChangePalette(theme::dark);
@@ -143,12 +147,17 @@ namespace windows::mainWindow {
 			return proceeded::True;
 		}
 	
-		inline proceeded Resize(windowHandle window, uint32 state, int clientX, int clientY) {
+		inline proceeded Resize(
+			winapi::windowHandle window, 
+			uint32 state, 
+			int clientX, 
+			int clientY
+		) {
 			/// More about - https://devblogs.microsoft.com/oldnewthing/20050706-26/?p=35023
 			const uint64 windowsNumber ( 2 );
 			const uint64 clientXHalf ( clientX / 2 );
 			
-			multipleWindowHandle windows ( BeginDeferWindowPos(windowsNumber) );
+			winapi::multipleWindowHandle windows ( BeginDeferWindowPos(windowsNumber) );
 			
 			//if (windows) windows = DeferWindowPos (
 			//	windows, 
@@ -176,22 +185,27 @@ namespace windows::mainWindow {
 			return proceeded::False;
 		}
 	
-		inline proceeded Default(windowHandle window, uint32 message, messageW wArgument, messageL lArgument) {
-			return (proceeded)DefaultWindowProcedure(window, message, wArgument, lArgument);
+		inline proceeded Default(
+			winapi::windowHandle window, 
+			uint32 message, 
+			winapi::messageW wArgument, 
+			winapi::messageL lArgument
+		) {
+			return (proceeded)winapi::DefaultWindowProcedure(window, message, wArgument, lArgument);
 		}
 	}
 	
 	proceeded stdcall WindowMainProcedure(
-		windowHandle window,
+		winapi::windowHandle window,
 		input message,
-		messageW wArgument,
-		messageL lArgument
+		winapi::messageW wArgument,
+		winapi::messageL lArgument
 	) {
 		namespace menu = mst::winapi::window::event::uahmenubar;
 		switch (message) {
 	
 			case input::Command: {
-				switch (GetMenuInput(wArgument)) {
+				switch (winapi::GetMenuInput(wArgument)) {
 					case mainMenuInput::About: return event::MessageAbout(window);
 					case mainMenuInput::Quit: DestroyWindow(window); return proceeded::True;
 	
@@ -251,7 +265,7 @@ namespace windows::mainWindow {
 			
 			case input::NonClientAreaPaint:
 			case input::NonClientAreaFocus: {
-				displayContextHandle drawContext { GetWindowDC(window) };
+				winapi::displayContextHandle drawContext { GetWindowDC(window) };
 				event::Default(window, (uint32)message, wArgument, lArgument); // We need to get throuh some other paints first.
 				menu::DrawBottomLine(window, drawContext, brushes::border.Get());
 				return proceeded::True;
@@ -277,7 +291,7 @@ namespace windows::mainWindow {
 		return proceeded::False;
 	}
 
-	const windowHandle Create(
+	const winapi::windowHandle Create(
 		const winapi::handleInstance& process, 
 		const winapi::brushHandle& backgroundBrush,
 		const int32& windowState,
@@ -287,7 +301,7 @@ namespace windows::mainWindow {
 		Register(
 			process, 
 			resource.className.Pointer(), 
-			(windowProcedure)WindowMainProcedure, 
+			(winapi::windowProcedure)WindowMainProcedure, 
 			resource.iconId, 
 			resource.iconSmallId, 
 			resource.menuId, 
@@ -302,7 +316,7 @@ namespace windows::mainWindow {
 				windowRightSize		( 700, 800 ),
 				windowLeftSize		( 700, 800 );
 				
-			const windowHandle mainWindow ( Initialize(
+			const winapi::windowHandle mainWindow ( Initialize(
 				process, 
 				resource.className.Pointer(), 
 				resource.title.Pointer(), 
@@ -318,7 +332,7 @@ namespace windows::mainWindow {
 			leftWindow = CreateChildWindow (
 				mainProcess, 
 				mainWindow, 
-				(windowProcedure)WindowLeftProcedure, 
+				(winapi::windowProcedure)WindowLeftProcedure, 
 				(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
 				L"WindowClass3Name",
 				brushes::primar.Get(),
@@ -330,7 +344,7 @@ namespace windows::mainWindow {
 			rightWindow = CreateChildWindow (
 				mainProcess, 
 				mainWindow, 
-				(windowProcedure)WindowRightProcedure, 
+				(winapi::windowProcedure)WindowRightProcedure, 
 				(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
 				L"WindowClass2Name",
 				brushes::second.Get(),

@@ -3,10 +3,10 @@
 namespace windows {
 	
 	proceeded stdcall WindowLeftProcedure(
-		windowHandle window,
+		winapi::windowHandle window,
 		input message,
-		messageW wArgument,
-		messageL lArgument
+		winapi::messageW wArgument,
+		winapi::messageL lArgument
 	) {
 		switch (message) { 
 		

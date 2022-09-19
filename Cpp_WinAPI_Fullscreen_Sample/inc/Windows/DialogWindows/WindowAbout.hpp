@@ -6,17 +6,17 @@ namespace windows {
 
 	uint64 messageCounter { 0 };
 
-	block RefreshWindowButton(windowHandle window, buttonInput button) {
-		windowHandle buttonWindow { GetDlgItem(window, (uint32)button) };
+	block RefreshWindowButton(winapi::windowHandle window, buttonInput button) {
+		winapi::windowHandle buttonWindow { GetDlgItem(window, (uint32)button) };
 		darkmode::AllowDarkModeForWindow(buttonWindow);
 		SendMessageW(buttonWindow, (uint32)input::ThemeChange, 0, 0);
 	}
 
 	proceeded stdcall About(
-		windowHandle window,
+		winapi::windowHandle window,
 		input message,
-		messageW wArgument,
-		messageL lArgument
+		winapi::messageW wArgument,
+		winapi::messageL lArgument
 	) {
 
 		switch (message) {
@@ -29,7 +29,7 @@ namespace windows {
 
 			case input::ControlStaticBeforeDraw:
 			case input::DialogWindowBeforeDraw: {
-				displayContextHandle displayContext { (displayContextHandle)wArgument };
+				winapi::displayContextHandle displayContext { (winapi::displayContextHandle)wArgument };
 				SetTextColor(displayContext, (*brushes::colors).text);
 				SetBkColor(displayContext, (*brushes::colors).primar);
 				return (proceeded)((INT_PTR)(brushes::primar.Get()));
@@ -38,7 +38,7 @@ namespace windows {
 			case input::SettingChange:
 				if (darkmode::isSupported)
 					if (wArgument == 0)
-						return darkmode::CheckWhetherImmersiveColorSet(window, (wchar*)lArgument, messageCounter);
+						return darkmode::CheckWhetherImmersiveColorSet(window, (winapi::wchar*)lArgument, messageCounter);
 				return proceeded::False;
 
 			case input::ThemeChange:
