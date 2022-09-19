@@ -12,6 +12,9 @@ namespace windows::mainWindow {
 	namespace event {
 
 		inline proceeded Create(const windowHandle& mainWindow) {
+			
+			if constexpr (DEBUG)
+				winapi::debug::console::LogInfo("(CALL) Window-Main:Create");
 	
 			/// Refresh titlebar theme color.
 			if constexpr (SYSTEM_VERSION == SystemVersion::Windows10) 
@@ -60,45 +63,49 @@ namespace windows::mainWindow {
 		}
 	
 		inline proceeded Destroy() {
+			
+			if constexpr (DEBUG)
+				winapi::debug::console::LogInfo("(CALL) Window-Main:Destory");
+			
 			brushes::Destroy();
 			PostQuitMessage(0); 		/// Call to the thread queue itself that we're finished.
 			return proceeded::True;
 		}
 	
 		inline proceeded Paint(const windowHandle& window) {
-			// 1 const array<winapi::wchar, 10> sample { L"Type here" };
-			// 1 
-			// 1 windowDrawContext drawContext;
-			// 1 rect clientArea { 0 };
-			// 1 
-			// 1 {
-			// 1 	displayContextHandle displayContext ( BeginPaint(window, &drawContext) );
-			// 1 	
-			// 1 	/// To get the whole "background" area.
-			// 1 	GetClientRect(window, &clientArea);
-			// 1 	
-			// 1 	/// Setting up the background and text color. This takes action in windows created here.
-			// 1 	SetBkColor(displayContext, brushes::colors->primar);
-			// 1 	SetTextColor(displayContext, brushes::colors->text);
-			// 1 	
-			// 1 	/// If we woudn't recreate some window/s with each draw we could use this
-			// 1 	/// to simply make our background the default we wanted. SetBkColor wouldn't be needed then.
-			// 1 	//FillRect(displayContext, &clientArea, brushes::backgroundPrimary.Get());
-			// 1 	
-			// 1 	/// Displing some text in a clientArea making the background color change.
-			// 1 	ExtTextOutW (
-			// 1 		displayContext,			/// on what we are drawing
-			// 1 		0,						/// x coordinate
-			// 1 		0,						/// y coordinate
-			// 1 		ETO_OPAQUE,				/// styles
-			// 1 		&clientArea,			/// rect specyfing the window coordinates
-			// 1 		sample.Pointer(),		/// string
-			// 1 		sample.Length(),		/// string length
-			// 1 		nullptr					/// distance between letters
-			// 1 	);
-			// 1 	
-			// 1 	EndPaint(window, &drawContext);
-			// 1 }
+			const array<winapi::wchar, 10> sample { L"Type here" };
+			
+			windowDrawContext drawContext;
+			rect clientArea { 0 };
+			
+			{
+				displayContextHandle displayContext ( BeginPaint(window, &drawContext) );
+				
+				/// To get the whole "background" area.
+				GetClientRect(window, &clientArea);
+				
+				/// Setting up the background and text color. This takes action in windows created here.
+				SetBkColor(displayContext, brushes::colors->primar);
+				SetTextColor(displayContext, brushes::colors->text);
+				
+				/// If we woudn't recreate some window/s with each draw we could use this
+				/// to simply make our background the default we wanted. SetBkColor wouldn't be needed then.
+				//FillRect(displayContext, &clientArea, brushes::backgroundPrimary.Get());
+				
+				/// Displing some text in a clientArea making the background color change.
+				ExtTextOutW (
+					displayContext,			/// on what we are drawing
+					0,						/// x coordinate
+					0,						/// y coordinate
+					ETO_OPAQUE,				/// styles
+					&clientArea,			/// rect specyfing the window coordinates
+					sample.Pointer(),		/// string
+					sample.Length(),		/// string length
+					nullptr					/// distance between letters
+				);
+				
+				EndPaint(window, &drawContext);
+			}
 	
 			return proceeded::True;
 		}
@@ -116,23 +123,23 @@ namespace windows::mainWindow {
 		}
 	
 		inline proceeded ThemeChange(windowHandle window) {
-	
+		
 			darkmode::RefreshTitleBarTheme(window);
-	
+		
 			if (window::event::uahmenubar::menuTheme) {
 				CloseThemeData(window::event::uahmenubar::menuTheme);
 				window::event::uahmenubar::menuTheme = nullptr;
 			}
-	
+		
 			if (darkmode::isEnabled) brushes::ChangePalette(theme::dark);
 			else brushes::ChangePalette(theme::light);
-	
+		
 			/// This makes brushes white as the data holded there is no longer available.
 			brushes::Destroy(); 
 			brushes::Initialize();
 			InvalidateRect(window, NULL, TRUE);
 			DrawMenuBar(window);
-	
+		
 			return proceeded::True;
 		}
 	
@@ -206,30 +213,30 @@ namespace windows::mainWindow {
 			#pragma GCC diagnostic push
 			#pragma GCC diagnostic ignored "-Wswitch"
 			
-			// 1 case (input)menu::Event::DrawItem: {
-			// 1 	auto menuItem ( *((menu::UAHDRAWMENUITEM*)lArgument) );
-			// 1 	return menu::DrawMenuItem(
-			// 1 		window, menuItem, 
-			// 1 		brushes::second, 
-			// 1 		brushes::selected, 
-			// 1 		brushes::hovered, 
-			// 1 		(*(brushes::colors)).text
-			// 1 	);
-			// 1 }
-			// 1 
-			// 1 case (input)menu::Event::Draw: {
-			// 1 	auto menuInstance ( *((menu::UAHMENU*)lArgument) );
-			// 1 	return menu::DrawMenu(window, menuInstance, brushes::second);
-			// 1 }
+			case (input)menu::Event::DrawItem: {
+				auto menuItem ( *((menu::UAHDRAWMENUITEM*)lArgument) );
+				return menu::DrawMenuItem(
+					window, menuItem, 
+					brushes::second, 
+					brushes::selected, 
+					brushes::hovered, 
+					(*(brushes::colors)).text
+				);
+			}
+			
+			case (input)menu::Event::Draw: {
+				auto menuInstance ( *((menu::UAHMENU*)lArgument) );
+				return menu::DrawMenu(window, menuInstance, brushes::second);
+			}
 			
 			#pragma GCC diagnostic pop
 	
 			case input::SettingChange:
 				return event::SettingChange(window, wArgument, lArgument);
-	
+			
 			case input::EraseBackgroundOnCalledInvalidPortion:
 				return proceeded::False;
-	
+			
 			case input::ThemeChange:
 				return event::ThemeChange(window);
 	
@@ -291,9 +298,9 @@ namespace windows::mainWindow {
 			const vector2<uint64> 
 				windowMainPoistion	( CW_USEDEFAULT, 0 ),
 				windowRightOffset	( 700, 0 ),
-				//windowLeftOffset	( 0, 0 ),
-				windowRightSize		( 700, 800 );
-				//windowLeftSize		( 700, 800 );
+				windowLeftOffset	( 0, 0 ),
+				windowRightSize		( 700, 800 ),
+				windowLeftSize		( 700, 800 );
 				
 			const windowHandle mainWindow ( Initialize(
 				process, 
@@ -303,30 +310,34 @@ namespace windows::mainWindow {
 				windowMainPoistion,
 				windowMainSize
 			) ); 
-				
-			//leftWindow = CreateChildWindow (
-			//	mainProcess, 
-			//	mainWindow, 
-			//	(windowProcedure)WindowLeftProcedure, 
-			//	(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
-			//	L"WindowClass3Name",
-			//	brushes::primar.Get(),
-			//	windowState,
-			//	windowLeftOffset,
-			//	windowLeftSize
-			//);
 			
-			// 1 rightWindow = CreateChildWindow (
-			// 1 	mainProcess, 
-			// 1 	mainWindow, 
-			// 1 	(windowProcedure)WindowRightProcedure, 
-			// 1 	(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
-			// 1 	L"WindowClass2Name",
-			// 1 	brushes::second.Get(),
-			// 1 	windowState,
-			// 1 	windowRightOffset,
-			// 1 	windowRightSize
-			// 1 );
+			if constexpr (DEBUG)
+				if (mainWindow == NULL)
+					winapi::debug::console::LogError("Window not created!");
+				
+			leftWindow = CreateChildWindow (
+				mainProcess, 
+				mainWindow, 
+				(windowProcedure)WindowLeftProcedure, 
+				(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
+				L"WindowClass3Name",
+				brushes::primar.Get(),
+				windowState,
+				windowLeftOffset,
+				windowLeftSize
+			);
+			
+			rightWindow = CreateChildWindow (
+				mainProcess, 
+				mainWindow, 
+				(windowProcedure)WindowRightProcedure, 
+				(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
+				L"WindowClass2Name",
+				brushes::second.Get(),
+				windowState,
+				windowRightOffset,
+				windowRightSize
+			);
 			
 			return mainWindow;
 		}

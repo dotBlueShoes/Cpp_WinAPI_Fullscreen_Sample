@@ -1,5 +1,8 @@
 ﻿#include "Framework.hpp"
+
 #include "Windows/WindowMain.hpp"	
+#include "Resources/ResourceHandler.hpp"
+#include "Brushes.hpp"	
 
 // Anti queue overflow mechanism. Whenever we know how many msgs we get and how we want to respond to them.
 // uint64 messageCounter ( 0 ); 
@@ -17,11 +20,12 @@ int32 stdcall wWinMain(
 	mainProcess = process; 			/// Setting up the Global
 	
 	application::Initialize();		/// Initializing Modules, DarkMode.
+	resourceHandler::Initialize(process);  /// Loading Strings into arrays.
 	
-	{ 	namespace dbg = mst::winapi::debug::console; 
+	if constexpr (DEBUG) { 	namespace dbg = mst::winapi::debug::console; 
 		dbg::LogInfo	("This debug message will display at the very begginging");
 		dbg::LogWarning	("This debug message will display at Second");
-		dbg::LogError	( "This debug message will display at Third");
+		dbg::LogError	("This debug message will display at Third");
 	}
 
 	if constexpr (SYSTEM_VERSION == SystemVersion::Windows10) 
@@ -38,8 +42,9 @@ int32 stdcall wWinMain(
 				message::Dispatch(message);
 			}
 		} 
-
+	
 		application::Destroy();
 		return (int32)message.wParam;
 	}
+	return 0;
 }
