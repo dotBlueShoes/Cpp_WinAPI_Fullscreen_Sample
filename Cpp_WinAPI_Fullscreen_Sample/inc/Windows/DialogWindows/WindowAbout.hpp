@@ -6,7 +6,7 @@ namespace windows {
 
 	uint64 messageCounter { 0 };
 
-	block RefreshWindowButton(winapi::windowHandle window, buttonInput button) {
+	block RefreshWindowButton(winapi::windowHandle window, resourceHandler::buttonInput button) {
 		winapi::windowHandle buttonWindow { GetDlgItem(window, (uint32)button) };
 		darkmode::AllowDarkModeForWindow(buttonWindow);
 		SendMessageW(buttonWindow, (uint32)input::ThemeChange, 0, 0);
@@ -22,8 +22,8 @@ namespace windows {
 		switch (message) {
 			case input::InitializeDialogWindow:
 				if (darkmode::isSupported) {
-					SetWindowTheme(GetDlgItem(window, (uint32)buttonInput::Ok), L"Explorer", nullptr);	// Set up the darkmode/lightmode availability.
-					RefreshWindowButton(window, buttonInput::Ok); 										// Check whether lightmode/darkmode.
+					SetWindowTheme(GetDlgItem(window, (uint32)resourceHandler::buttonInput::Ok), L"Explorer", nullptr);	// Set up the darkmode/lightmode availability.
+					RefreshWindowButton(window, resourceHandler::buttonInput::Ok); 										// Check whether lightmode/darkmode.
 					darkmode::RefreshTitleBarTheme(window);
 				} return proceeded::True;
 
@@ -44,7 +44,7 @@ namespace windows {
 			case input::ThemeChange:
 				if (darkmode::isSupported) {
 
-					RefreshWindowButton(window, buttonInput::Ok);
+					RefreshWindowButton(window, resourceHandler::buttonInput::Ok);
 					darkmode::RefreshTitleBarTheme(window);
 
 					if (darkmode::isEnabled) brushes::ChangePalette(theme::dark);
@@ -70,7 +70,10 @@ namespace windows {
 				} return proceeded::False;
 				
 			case input::Command:
-				if (LOWORD(wArgument) == (uint32)buttonInput::Ok || LOWORD(wArgument) == (uint32)buttonInput::Cancel) {
+				if (
+					LOWORD(wArgument) == (uint32)resourceHandler::buttonInput::Ok || 
+					LOWORD(wArgument) == (uint32)resourceHandler::buttonInput::Cancel
+				) {
 					EndDialog(window, LOWORD(wArgument));
 					return proceeded::True;
 				}

@@ -206,10 +206,10 @@ namespace windows::mainWindow {
 	
 			case input::Command: {
 				switch (winapi::GetMenuInput(wArgument)) {
-					case mainMenuInput::About: return event::MessageAbout(window);
-					case mainMenuInput::Quit: DestroyWindow(window); return proceeded::True;
+					case resourceHandler::mainMenuInput::About: return event::MessageAbout(window);
+					case resourceHandler::mainMenuInput::Quit: DestroyWindow(window); return proceeded::True;
 	
-					case mainMenuInput::MaxMin: {
+					case resourceHandler::mainMenuInput::MaxMin: {
 						
 						GetWindowPlacement(window, &windowMode::windowedPlacement);
 						if (windowMode::windowedPlacement.showCmd == SW_MAXIMIZE) ShowWindow(window, SW_SHOWDEFAULT);

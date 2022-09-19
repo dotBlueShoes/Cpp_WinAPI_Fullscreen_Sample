@@ -24,19 +24,20 @@ namespace resourceHandler {
 		winapi::wideString::Load(instance, titleId, title.Pointer(), (int32)title.Length());
 		keys = winapi::accelerator::Load(instance, MAKEINTRESOURCEW(classNameId)); // Getting the keyMap
 	}
+	
+	enum class buttonInput : uint16 {
+		Cancel = IDCANCEL,
+		Ok = IDOK
+	};
+	
+	enum mainMenuInput : uint16 {
+		About = IDM_ABOUT,
+		Quit = IDM_EXIT,
+		MaxMin = ID_WINDOW_MAXMIN
+		//fullscreen = ID_FULLSCREEN,
+		//fullscreenWindow = ID_FULLSCREEN_WINDOWED,
+		//window = ID_WINDOWED,
+		//WindowedBorderless = ID_WINDOWED_BORDERLESS
+	};
 }
 
-enum class buttonInput : uint16 {
-	Cancel = IDCANCEL,
-	Ok = IDOK
-};
-
-enum mainMenuInput : uint16 {
-	About = IDM_ABOUT,
-	Quit = IDM_EXIT,
-	MaxMin = ID_WINDOW_MAXMIN
-	//fullscreen = ID_FULLSCREEN,
-	//fullscreenWindow = ID_FULLSCREEN_WINDOWED,
-	//window = ID_WINDOWED,
-	//WindowedBorderless = ID_WINDOWED_BORDERLESS
-};

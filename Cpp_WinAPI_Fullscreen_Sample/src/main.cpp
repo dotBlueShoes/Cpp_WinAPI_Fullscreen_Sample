@@ -10,17 +10,10 @@ int32 stdcall wWinMain(
 	using namespace winapi;
 	const vector2<uint64> windowSize ( 1400, 800 );
 	
-	mainProcess = process; 			/// Setting up the Global
+	mainProcess = process; 					/// Setting up the Global
 	
-	application::Initialize();		/// Initializing Modules, DarkMode.
-	resourceHandler::Initialize(process);  /// Loading Strings into arrays.
-	
-	if constexpr (DEBUG) { 	
-		namespace dbg = winapi::debug::console; 
-		dbg::LogInfo	("This debug message will display at the very begginging");
-		dbg::LogWarning	("This debug message will display at Second");
-		dbg::LogError	("This debug message will display at Third");
-	}
+	application::Initialize();				/// Initializing Modules, DarkMode.
+	resourceHandler::Initialize(process);	/// Loading Strings into arrays.
 
 	if constexpr (SYSTEM_VERSION == SystemVersion::Windows10) 
 		brushes::ChangePalette(window::theme::dark);
