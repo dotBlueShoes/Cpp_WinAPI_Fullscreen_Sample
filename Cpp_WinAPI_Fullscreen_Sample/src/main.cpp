@@ -31,7 +31,7 @@ int32 stdcall wWinMain(
 	{	// Program's main loop.
 		retrivedMessage message;
 		while (message::Get(message)) {
-			if (!accelerator::Translate(message.hwnd, resource.keys, message)) {
+			if (!accelerator::Translate(message.hwnd, resourceHandler::keys, message)) {
 				message::Translate(message);
 				message::Dispatch(message);
 			}

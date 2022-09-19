@@ -6,7 +6,8 @@
 #include "MST.hpp"
 #include "MST/WinAPI.hpp"
 
-struct {
+namespace resourceHandler {
+	
 	const winapi::resourceType
 		classNameId = IDC_CPPWINAPIFULLSCREENSAMPLE,
 		iconId = IDI_CPPWINAPIFULLSCREENSAMPLE,
@@ -17,13 +18,11 @@ struct {
 
 	array<winapi::wchar, 100> className, title;
 	winapi::keysMapHandle keys { 0 };
-} resource;
-
-namespace resourceHandler {
+	
 	block Initialize(winapi::handleInstance instance) {
-		winapi::wideString::Load(instance, resource.classNameId, resource.className.Pointer(), (int32)resource.className.Length()); // Possesing string data from resource file.
-		winapi::wideString::Load(instance, resource.titleId, resource.title.Pointer(), (int32)resource.title.Length());
-		resource.keys = winapi::accelerator::Load(instance, MAKEINTRESOURCEW(resource.classNameId)); // Getting the keyMap
+		winapi::wideString::Load(instance, classNameId, className.Pointer(), (int32)className.Length()); // Possesing string data from resource file.
+		winapi::wideString::Load(instance, titleId, title.Pointer(), (int32)title.Length());
+		keys = winapi::accelerator::Load(instance, MAKEINTRESOURCEW(classNameId)); // Getting the keyMap
 	}
 }
 

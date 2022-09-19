@@ -4,7 +4,6 @@ namespace windows {
 	
 	uint64 messageLength ( 0 );
 	
-	winapi::wchar debugMessage[255];
 	winapi::rect oldPosition;
 	
 	proceeded stdcall WindowRightProcedure(
@@ -13,7 +12,7 @@ namespace windows {
 		winapi::messageW wArgument,
 		winapi::messageL lArgument
 	) {
-		const auto SC_DRAG = SC_SIZE+9;
+		const auto SC_DRAG = SC_SIZE + 9;
 		switch (message) { 
 				
 			case input::OnMouseLeftClickDown: {
@@ -24,15 +23,15 @@ namespace windows {
 			}
 			
 			case input::OnMove: {
-				
 				/// To lock the Drag in x-axis.
 				winapi::rect& newPosition = *((winapi::rect*)lArgument);
 				newPosition.bottom = oldPosition.bottom;
 				newPosition.top = oldPosition.top;
 				
 				if constexpr (DEBUG) {	
-					using namespace winapi::debug::console;
 					
+					// !
+					// array<winapi::wchar, 100> debugMessage;
 					const string message ( 
 						"pos: l: " 	+ ToString(newPosition.left) 	+ 
 						", u: " 	+ ToString(newPosition.top) 	+ 
@@ -40,7 +39,7 @@ namespace windows {
 						", d: " 	+ ToString(newPosition.bottom)
 					);
 					
-					LogInfo<LogLevel::Max>(message);
+					winapi::debug::console::LogInfo(message);
 				}
 				
 				return proceeded::True;

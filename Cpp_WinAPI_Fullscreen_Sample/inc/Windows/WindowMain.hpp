@@ -111,7 +111,7 @@ namespace windows::mainWindow {
 		}
 	
 		inline proceeded MessageAbout(const winapi::windowHandle& window) {
-			DialogBox(mainProcess, MAKEINTRESOURCE(resource.windowAboutId), window, (DLGPROC)windows::About);
+			DialogBox(mainProcess, MAKEINTRESOURCE(resourceHandler::windowAboutId), window, (DLGPROC)windows::About);
 			return proceeded::True;
 		}
 		
@@ -297,14 +297,15 @@ namespace windows::mainWindow {
 		const int32& windowState,
 		const vector2<uint64>& windowMainSize
 	) {
+		using namespace resourceHandler;
 		
 		Register(
 			process, 
-			resource.className.Pointer(), 
+			className.Pointer(), 
 			(winapi::windowProcedure)WindowMainProcedure, 
-			resource.iconId, 
-			resource.iconSmallId, 
-			resource.menuId, 
+			iconId, 
+			iconSmallId, 
+			menuId, 
 			backgroundBrush
 		);
 		
@@ -316,14 +317,16 @@ namespace windows::mainWindow {
 				windowRightSize		( 700, 800 ),
 				windowLeftSize		( 700, 800 );
 				
-			const winapi::windowHandle mainWindow ( Initialize(
-				process, 
-				resource.className.Pointer(), 
-				resource.title.Pointer(), 
-				windowState,
-				windowMainPoistion,
-				windowMainSize
-			) ); 
+			const winapi::windowHandle mainWindow ( 
+				Initialize (
+					process, 
+					className.Pointer(), 
+					title.Pointer(), 
+					windowState,
+					windowMainPoistion,
+					windowMainSize
+				) 
+			); 
 			
 			if constexpr (DEBUG)
 				if (mainWindow == NULL)
@@ -341,6 +344,10 @@ namespace windows::mainWindow {
 				windowLeftSize
 			);
 			
+			if constexpr (DEBUG)
+				if (leftWindow == NULL)
+					winapi::debug::console::LogError("Window not created!");
+			
 			rightWindow = CreateChildWindow (
 				mainProcess, 
 				mainWindow, 
@@ -352,6 +359,10 @@ namespace windows::mainWindow {
 				windowRightOffset,
 				windowRightSize
 			);
+			
+			if constexpr (DEBUG)
+				if (rightWindow == NULL)
+					winapi::debug::console::LogError("Window not created!");
 			
 			return mainWindow;
 		}
