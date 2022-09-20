@@ -20,9 +20,9 @@ namespace resourceHandler {
 	winapi::keysMapHandle keys { 0 };
 	
 	block Initialize(winapi::handleInstance instance) {
-		winapi::wideString::Load(instance, classNameId, className.Pointer(), (int32)className.Length()); // Possesing string data from resource file.
+		winapi::wideString::Load(instance, classNameId, className.Pointer(), (int32)className.Length()); /// Possesing string data from resource file.
 		winapi::wideString::Load(instance, titleId, title.Pointer(), (int32)title.Length());
-		keys = winapi::accelerator::Load(instance, MAKEINTRESOURCEW(classNameId)); // Getting the keyMap
+		keys = winapi::accelerator::Load(instance, MAKEINTRESOURCEW(classNameId)); /// Getting the keyMap
 	}
 	
 	enum class buttonInput : uint16 {
