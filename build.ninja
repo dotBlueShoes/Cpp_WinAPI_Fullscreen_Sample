@@ -34,10 +34,10 @@ tabColor = "#022"
 # RULES
 
 rule run_release 
-  command = $projectPath\$buildDir\$projectTitle.exe
+  command = "$projectPath\$buildDir\$projectTitle.exe"
   
 rule run_debug 
-  command = $projectPath\$buildDir\$debugPath\$projectTitle.exe
+  command = "$projectPath\$buildDir\$debugPath\$projectTitle.exe"
 
 rule compile_release
   command = clang++ $
@@ -45,11 +45,11 @@ rule compile_release
   -ferror-limit=$errorLimit $
   -I $globalIncludePath -I $mstIncludePath $
   $srcList $
-  -o $projectPath\$buildDir\$projectTitle.exe $
+  -o "$projectPath\$buildDir\$projectTitle.exe" $
   --define-macro SYSTEM_VERSION=$buildMachine $
   --define-macro DEBUG=0 $
   $linkerLibraries $
-  "$projectPath\$projectName\inc\resources\$projectTitle.res"
+  "$projectPath\$projectName\inc\resources\$projectName.res"
   
 # https://releases.llvm.org/13.0.0/tools/clang/docs/ClangCommandLineReference.html#debug-information-generation - debug ref
 # https://clang.llvm.org/docs/ClangCommandLineReference.html#preprocessor-flags
@@ -59,15 +59,15 @@ rule compile_debug
   -ferror-limit=$errorLimit $
   -I $globalIncludePath -I $mstIncludePath $
   $srcList $
-  -o $projectPath\$buildDir\$debugPath\$projectTitle.exe $
+  -o "$projectPath\$buildDir\$debugPath\$projectTitle.exe" $
   --debug $
   --define-macro SYSTEM_VERSION=$buildMachine $
   --define-macro DEBUG=3 $
   $linkerLibraries $
-  "$projectPath\$projectName\inc\resources\$projectTitle.res"
+  "$projectPath\$projectName\inc\resources\$projectName.res"
 
 rule clear
-  command = rm $projectPath\$buildDir\$projectTitle.exe
+  command = rm "$projectPath\$buildDir\$projectTitle.exe"
   
 # Setups project path in .ninja/secret.ninja
 rule setup
@@ -83,10 +83,9 @@ rule refresh
   
 # https://docs.microsoft.com/en-us/cpp/build/understanding-manifest-generation-for-c-cpp-programs?view=msvc-170
 rule add_manifest
-  command = cmd /c $mt -manifest $
-  $projectPath\$projectName\$projectTitle.exe.manifest $
-  -outputresource:$projectPath\$buildDir\$projectTitle.exe;1
-  
+  command = cmd /c "$mt -manifest $
+  "$projectPath\$projectName\$projectName.exe.manifest" $
+  -outputresource:"$projectPath\$buildDir\$projectTitle.exe"";1
   
 # https://docs.microsoft.com/en-us/windows/win32/menurc/using-rc-the-rc-command-line-
 # https://digitalmars.com/ctg/ctgRC.html
@@ -97,7 +96,7 @@ rule compile_resource
   command = $rc -X $
   -I "$winIncludePath\shared" $
   -I "$winIncludePath\um" $
-  -R "$projectPath\$projectName\inc\resources\$projectTitle.rc" 
+  -R "$projectPath\$projectName\inc\resources\$projectName.rc" 
   
 # BUILDS
   
