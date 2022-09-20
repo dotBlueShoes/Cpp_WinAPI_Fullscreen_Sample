@@ -1,52 +1,41 @@
 #pragma once
+#include "Procedures/ProcedureRight.hpp"
 
-namespace windows {
+namespace windows::windowRight {
 	
-	uint64 messageLength ( 0 );
-	
-	winapi::rect oldPosition;
-	
-	proceeded stdcall WindowRightProcedure(
-		winapi::windowHandle window,
-		input message,
-		winapi::messageW wArgument,
-		winapi::messageL lArgument
-	) {
-		const auto SC_DRAG = SC_SIZE + 9;
-		switch (message) { 
-				
-			case input::OnMouseLeftClickDown: {
-				GetWindowRect(window, &oldPosition);
-				/// To make the window dragable. 
-				PostMessage(window, WM_SYSCOMMAND, SC_DRAG, (LPARAM)NULL);
-				return proceeded::False;
-			}
+	const winapi::windowHandle Create(
+		const winapi::handleInstance& process,
+		const winapi::windowHandle& parentWindow,
+		const winapi::brushHandle& backgroundBrush,
+		const int32& windowState
+	) {	
+		const array<winapi::wchar, 12> className ( L"WindowRight" );
+		const vector2<uint64> 
+			windowRightOffset ( 700, 0 ),
+			windowRightSize	( 700, 800 );
 			
-			case input::OnMove: {
-				/// To lock the Drag in x-axis.
-				winapi::rect& newPosition = *((winapi::rect*)lArgument);
-				newPosition.bottom = oldPosition.bottom;
-				newPosition.top = oldPosition.top;
+		if constexpr (DEBUG) debug::LogInfo("(CALL) Window-Right:Create");
 				
-				if constexpr (DEBUG) {	
-					
-					// !
-					// array<winapi::wchar, 100> debugMessage;
-					const string message ( 
-						"pos: l: " 	+ ToString(newPosition.left) 	+ 
-						", u: " 	+ ToString(newPosition.top) 	+ 
-						", r: " 	+ ToString(newPosition.right) 	+ 
-						", d: " 	+ ToString(newPosition.bottom)
-					);
-					
-					winapi::debug::console::LogInfo(message);
-				}
-				
-				return proceeded::True;
-			}
+		{
+			const winapi::windowHandle window (
+				CreateChildWindow (
+					process, 
+					parentWindow, 
+					(winapi::windowProcedure)WindowRightProcedure, 
+					(HCURSOR)LoadImage(NULL, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED),
+					className.Pointer(),
+					backgroundBrush,
+					windowState,
+					windowRightOffset,
+					windowRightSize
+				)
+			);
 			
-			default:
-				return (proceeded)DefWindowProcW(window, (uint32)message, wArgument, lArgument);
+			if constexpr (DEBUG)
+				// ERROR HANDLING
+				if (window == NULL) debug::LogError("Window not created!");
+					
+			return window;
 		}
 	}
 	

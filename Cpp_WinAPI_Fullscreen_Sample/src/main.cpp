@@ -1,5 +1,9 @@
 ﻿#include "Framework.hpp"
+
 #include "Windows/WindowMain.hpp"	
+
+/// ERRORs
+/// - ctrl clicking breaks.... the whole app
 
 int32 stdcall wWinMain(
 	[in]	winapi::handleInstance process,	/// The process we're given to run our program.
